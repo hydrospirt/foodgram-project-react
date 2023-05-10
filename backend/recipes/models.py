@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import RegexValidator
 
 
 class Recipe(models.Model):
@@ -20,8 +21,6 @@ class Recipe(models.Model):
         editable=False,
     )
 
-
-
     class Meta:
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
@@ -29,5 +28,25 @@ class Recipe(models.Model):
     def __str__(self):
         return self.name
 
-    # def get_absolute_url(self):
-    #     return reverse("_detail", kwargs={"pk": self.pk})
+
+class Tag(models.Model):
+    name = models.CharField(
+        verbose_name='Название',
+        max_length=200,
+        unique=True,
+    )
+    color = models.CharField(
+        verbose_name='Цвет в "HEX"',
+        max_length=7,
+        unique=True,
+    )
+    slug = models.CharField(
+        verbose_name='Уникальный фрагмент URL-адреса',
+        max_length=200,
+        validators=([RegexValidator(regex=r'^[-a-zA-Z0-9_]+$')])
+    )
+
+    class Meta:
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
+        ordering = ('name',)
