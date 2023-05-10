@@ -3,7 +3,7 @@ from django.db import models
 from django.core.validators import RegexValidator
 
 
-class User(AbstractUser):
+class CustomUser(AbstractUser):
     email = models.EmailField(
         verbose_name='Адрес электронной почты',
         max_length=254,
@@ -27,6 +27,18 @@ class User(AbstractUser):
     password = models.CharField(
         verbose_name='Пароль',
         max_length=150,
+    )
+    is_active = models.BooleanField(
+        default=True
+    )
+    is_staff = models.BooleanField(
+        verbose_name='Персонал',
+        default=False,
+    )
+    last_login = models.DateTimeField(
+        verbose_name='Время последнего посещения',
+        null=True,
+        blank=True,
     )
 
     class Meta:
