@@ -69,6 +69,9 @@ class Tag(models.Model):
         verbose_name_plural = 'Теги'
         ordering = ('name',)
 
+    def __str__(self):
+        return self.name
+
 
 class Ingridient(models.Model):
     name = models.CharField(
