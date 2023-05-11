@@ -9,6 +9,7 @@ class Recipe(models.Model):
         verbose_name='Автор',
         related_name='recipes',
         on_delete=models.CASCADE,
+        default=1
     )
     name = models.CharField(
         verbose_name='Название',
@@ -18,16 +19,17 @@ class Recipe(models.Model):
         verbose_name='Картинка',
         upload_to='recipes/',
         help_text='Загрузите изображение',
+        null=True,
     )
     text = models.TextField(
         verbose_name='Описание',
         max_length=5000,
         )
-    ingridient = models.ManyToManyField(
-        'Ingridient',
+    ingredient = models.ManyToManyField(
+        'Ingredient',
         verbose_name='Ингредиенты',
         related_name='recipes',
-        through='IngridientAmount'
+        through='IngredientAmount'
     )
     tag = models.ManyToManyField(
         'Tag',
@@ -79,7 +81,7 @@ class Tag(models.Model):
         return self.name
 
 
-class Ingridient(models.Model):
+class Ingredient(models.Model):
     name = models.CharField(
         verbose_name='Название',
         max_length=200,
@@ -95,17 +97,15 @@ class Ingridient(models.Model):
         ordering = ('name',)
 
 
-class IngridientAmount(models.Model):
+class IngredientAmount(models.Model):
     recipe = models.ForeignKey(
         'Recipe',
         verbose_name='Рецепт',
-        related_name='recipes',
         on_delete=models.CASCADE
     )
-    ingridient = models.ForeignKey(
-        'Ingridient',
+    ingredient = models.ForeignKey(
+        'Ingredient',
         verbose_name='Ингредиент',
-        related_name='recipes',
         on_delete=models.CASCADE
     )
     amount = models.PositiveIntegerField(
@@ -117,4 +117,4 @@ class IngridientAmount(models.Model):
         verbose_name_plural = 'Количество ингредиентов'
 
     def __str__(self):
-        return f'{self.ingridient} {self.amount}'
+        return f'{self.ingredient} {self.amount}'
