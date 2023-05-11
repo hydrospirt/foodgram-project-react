@@ -1,18 +1,12 @@
 from django.contrib import admin
 from recipes.models import Recipe, Ingredient, Tag
 
-
-class TagInline(admin.TabularInline):
-    model = Tag
-
-
 @admin.register(Recipe)
 class AdminRecipe(admin.ModelAdmin):
     list_display = (
         'name',
         'author',
     )
-    inlines = (TagInline,)
     list_filter = ('author', 'name', 'tag')
     search_fields = ('author', 'name', 'tag')
     empty_value_display = '-пусто-'

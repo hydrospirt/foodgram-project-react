@@ -115,9 +115,7 @@ class IngredientAmount(models.Model):
     class Meta:
         verbose_name = 'Количество ингредиента'
         verbose_name_plural = 'Количество ингредиентов'
-        constraints = (
-            models.UniqueConstraint(fields=('recipe', 'ingredient'), name='unique_ingredient_amount')
-        )
+        constraints = (models.UniqueConstraint(fields=('recipe', 'ingredient',), name='unique_ingredient_amount'),)
 
     def __str__(self):
         return f'{self.ingredient} {self.amount}'
@@ -125,13 +123,13 @@ class IngredientAmount(models.Model):
 
 class Subscriptions(models.Model):
     user = models.ForeignKey(
-        'CustomUser',
+        CustomUser,
         verbose_name='Подписчик',
         related_name='subscriber',
         on_delete=models.CASCADE,
     )
     author = models.ForeignKey(
-        'CustomUser',
+        CustomUser,
         verbose_name='Автор',
         related_name='subscribing',
         on_delete=models.CASCADE,
@@ -140,9 +138,7 @@ class Subscriptions(models.Model):
     class Meta:
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
-        constraints = (
-            models.UniqueConstraint(fields=('user', 'author'), name='unique_subscriptions')
-        )
+        constraints = (models.UniqueConstraint(fields=('user', 'author',), name='unique_subscriptions'),)
 
     def __str__(self) -> str:
         return f'{self.user} подписан(-а) на {self.author}'
@@ -150,7 +146,7 @@ class Subscriptions(models.Model):
 
 class Favorites(models.Model):
     user = models.ForeignKey(
-        'CustomUser',
+        CustomUser,
         verbose_name='Пользователь',
         related_name='favorites',
         on_delete=models.CASCADE,
@@ -165,9 +161,7 @@ class Favorites(models.Model):
     class Meta:
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
-        constraints = (
-            models.UniqueConstraint(fields=('user', 'recipe'), name='unique_favorites')
-        )
+        constraints = (models.UniqueConstraint(fields=('user', 'recipe',), name='unique_favorites'),)
 
     def __str__(self) -> str:
         return f'{self.recipe} добавлен в избранное {self.user}'
@@ -175,7 +169,7 @@ class Favorites(models.Model):
 
 class ShoppingCart(models.Model):
     user = models.ForeignKey(
-        'CustomUser',
+        CustomUser,
         verbose_name='Покупатель',
         related_name='shopping_cart',
         on_delete=models.CASCADE,
@@ -190,9 +184,7 @@ class ShoppingCart(models.Model):
     class Meta:
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
-        constraints = (
-            models.UniqueConstraint(fields=('user', 'recipe'), name='unique_shopping_cart')
-        )
+        constraints = (models.UniqueConstraint(fields=('user', 'recipe',), name='unique_shopping_cart'),)
 
     def __str__(self) -> str:
         return f'{self.recipe} в списке покупок {self.user}'
