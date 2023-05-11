@@ -17,4 +17,5 @@ class AdminUser(admin.ModelAdmin):
     )
     list_filter = ('email', 'first_name')
     search_fields = ('email', 'first_name')
+    list_display_links = ('pk', 'username')
     empty_value_display = '-пусто-'
