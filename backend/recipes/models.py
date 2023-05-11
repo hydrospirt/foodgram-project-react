@@ -118,3 +118,28 @@ class IngredientAmount(models.Model):
 
     def __str__(self):
         return f'{self.ingredient} {self.amount}'
+
+
+class Subscriptions(models.Model):
+    user = models.ForeignKey(
+        'CustomUser',
+        verbose_name='Подписчик',
+        related_name='subscriber',
+        on_delete=models.CASCADE,
+    )
+    author = models.ForeignKey(
+        'CustomUser',
+        verbose_name='Автор',
+        related_name='subscribing',
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+        constraints = (
+            models.UniqueConstraint(fields=('user', 'author'), name='unique_subscriptions')
+        )
+
+    def __str__(self) -> str:
+        return f'{self.user} подписан(-а) на {self.author}'
