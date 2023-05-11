@@ -68,3 +68,19 @@ class Tag(models.Model):
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
         ordering = ('name',)
+
+
+class Ingridient(models.Model):
+    name = models.CharField(
+        verbose_name='Название',
+        max_length=200,
+    )
+    measurement_unit = models.CharField(
+        verbose_name='Единица измерения',
+        max_length=200,
+    )
+
+    class Meta:
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
+        ordering = ('name',)
