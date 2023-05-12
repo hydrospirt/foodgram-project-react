@@ -1,5 +1,16 @@
 from django.contrib import admin
-from recipes.models import Recipe, Ingredient, Tag, Favorites, Subscriptions, ShoppingCart
+
+from recipes.models import (Favorites, Ingredient, IngredientAmount, Recipe,
+                            ShoppingCart, Subscriptions, Tag)
+
+admin.site.site_header = 'Проект Foodgram'
+admin.site.index_title = 'Панель Администратора'
+admin.site.site_title = 'Проект Foodgram'
+
+
+class IngredientAmountInline(admin.TabularInline):
+    model = IngredientAmount
+
 
 @admin.register(Recipe)
 class AdminRecipe(admin.ModelAdmin):
@@ -7,12 +18,12 @@ class AdminRecipe(admin.ModelAdmin):
         'name',
         'author',
         'get_text',
-        'tag',
         'pub_date',
     )
     list_filter = ('author', 'name', 'tag')
     search_fields = ('author', 'name', 'tag')
     readonly_fields = ('amount_favorites',)
+    inlines = (IngredientAmountInline,)
     date_hierarchy = 'pub_date'
     empty_value_display = '-пусто-'
 
@@ -22,7 +33,7 @@ class AdminRecipe(admin.ModelAdmin):
 
     @admin.display(description='Текст')
     def get_text(self):
-       return self.text[:20]
+        return self.text[:20]
 
 
 @admin.register(Ingredient)
