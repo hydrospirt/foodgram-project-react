@@ -6,15 +6,23 @@ class AdminRecipe(admin.ModelAdmin):
     list_display = (
         'name',
         'author',
+        'get_text',
+        'tag',
+        'pub_date',
     )
     list_filter = ('author', 'name', 'tag')
     search_fields = ('author', 'name', 'tag')
     readonly_fields = ('amount_favorites',)
+    date_hierarchy = 'pub_date'
     empty_value_display = '-пусто-'
 
     @admin.display(description='Кол-во добавлений в избранное')
     def amount_favorites(self, obj):
         return obj.favorites.count()
+
+    @admin.display(description='Текст')
+    def get_text(self):
+       return self.text[:20]
 
 
 @admin.register(Ingredient)

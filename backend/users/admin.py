@@ -20,4 +20,5 @@ class AdminUser(UserAdmin):
     search_fields = ('email', 'first_name')
     list_display_links = ('pk', 'username')
     readonly_fields = ('date_joined',)
+    date_hierarchy = 'date_joined'
     empty_value_display = '-пусто-'
