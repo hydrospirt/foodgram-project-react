@@ -14,3 +14,9 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'last_name',
             'password',
             )
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = '__all__'
