@@ -13,6 +13,9 @@ class CustomUserViewSet(viewsets.ModelViewSet):
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    permission_classes = (permissions.AllowAny,)
+    http_method_names = ('get',)
+
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -23,3 +26,5 @@ class RecipeViewSet(viewsets.ModelViewSet):
 class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
+    permission_classes = (permissions.AllowAny,)
+    http_method_names = ('get',)
