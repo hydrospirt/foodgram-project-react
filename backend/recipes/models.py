@@ -19,7 +19,8 @@ class Recipe(models.Model):
         verbose_name='Картинка',
         upload_to='recipes/',
         help_text='Загрузите изображение',
-        default = 'default.jpg'
+        default = 'default.jpg',
+        blank=False,
     )
     text = models.TextField(
         verbose_name='Описание',
