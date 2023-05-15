@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, filters
 from api.serializers import UserSerializer, TagSerializer, RecipeSerializer, IngredientSerializer
 from recipes.models import Recipe, Tag, Ingredient
 from users.models import CustomUser
@@ -27,4 +27,6 @@ class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (permissions.AllowAny,)
+    search_fields = ('name', )
+    filter_backends = (filters.SearchFilter,)
     http_method_names = ('get',)
