@@ -1,9 +1,10 @@
 import base64
+from django.db.models import F
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from rest_framework import serializers, mixins
 
-from recipes.models import Recipe, Tag, Ingredient, Subscriptions
+from recipes.models import Recipe, Tag, Ingredient, Subscriptions, Favorites, ShoppingCart
 
 User = get_user_model()
 
@@ -99,18 +100,23 @@ class RecipeSerializer(serializers.ModelSerializer):
             'text',
             'cooking_time',
         )
+    def __is_user_anonymous(self, obj, model):
+        user = self.context['request'].user
+        if user.is_anonymous:
+            return False
+        return model.objects.filter(recipe=obj, user=user).exists()
 
     def get_ingredients(self, obj):
         ingredients = obj.ingredient.values(
-            'id', 'name', 'measurement_unit', 'ingredientamount'
+            'id', 'name', 'measurement_unit', amount=F('ingredientamount__amount')
         )
         return ingredients
 
     def get_is_favorited(self, obj):
-        pass
+        return self.__is_user_anonymous(obj, Favorites)
 
     def get_is_in_shopping_cart(self, obj):
-        pass
+        return self.__is_user_anonymous(obj, ShoppingCart)
 
 
 class IngredientSerializer(serializers.ModelSerializer):
