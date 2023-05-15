@@ -19,7 +19,7 @@ class Recipe(models.Model):
         verbose_name='Картинка',
         upload_to='recipes/',
         help_text='Загрузите изображение',
-        null=True,
+        default = 'default.jpg'
     )
     text = models.TextField(
         verbose_name='Описание',
@@ -96,6 +96,9 @@ class Ingredient(models.Model):
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
         ordering = ('name',)
+
+    def __str__(self) -> str:
+        return self.name
 
 
 class IngredientAmount(models.Model):
