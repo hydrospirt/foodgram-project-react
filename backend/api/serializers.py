@@ -1,14 +1,25 @@
 import base64
+from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
-from rest_framework import serializers
+from rest_framework import serializers, mixins
 
-from recipes.models import Recipe, Tag, Ingredient
-from users.models import CustomUser
+from recipes.models import Recipe, Tag, Ingredient, Subscriptions
+
+User = get_user_model()
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
+    is_subscribed = serializers.SerializerMethodField()
+
+    def get_is_subscribed(self, obj):
+        user_id = obj.id if isinstance(obj, User) else obj.author.id
+        request_user = self.context.get('request').user.id
+        queryset = Subscriptions.objects.filter(author=user_id,
+                                                user=request_user).exists()
+        return queryset
+
     class Meta:
-        model = CustomUser
+        model = User
         fields = (
             'id',
             'email',
