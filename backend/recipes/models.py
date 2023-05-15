@@ -66,6 +66,7 @@ class Tag(models.Model):
         verbose_name='Цвет в "HEX"',
         max_length=7,
         unique=True,
+        validators=([RegexValidator(regex=r'^#[A-Fa-f0-9]{6}$')])
     )
     slug = models.CharField(
         verbose_name='Уникальный фрагмент URL-адреса',
