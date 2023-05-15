@@ -1,13 +1,13 @@
 from django.shortcuts import render
 from rest_framework import viewsets, permissions
-from api.serializers import CustomUserSerializer, TagSerializer, RecipeSerializer, IngredientSerializer
+from api.serializers import UserSerializer, TagSerializer, RecipeSerializer, IngredientSerializer
 from recipes.models import Recipe, Tag, Ingredient
 from users.models import CustomUser
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
-    serializer_class = CustomUserSerializer
+    serializer_class = UserSerializer
 
 
 class TagViewSet(viewsets.ModelViewSet):
