@@ -1,11 +1,13 @@
 from django.db import models
+from django.contrib.auth import get_user_model
 from django.core.validators import RegexValidator
-from users.models import CustomUser
+
+User = get_user_model()
 
 
 class Recipe(models.Model):
     author = models.ForeignKey(
-        CustomUser,
+        User,
         verbose_name='Автор',
         related_name='recipes',
         on_delete=models.CASCADE,
@@ -129,13 +131,13 @@ class IngredientAmount(models.Model):
 
 class Subscriptions(models.Model):
     user = models.ForeignKey(
-        CustomUser,
+        User,
         verbose_name='Подписчик',
         related_name='subscriber',
         on_delete=models.CASCADE,
     )
     author = models.ForeignKey(
-        CustomUser,
+        User,
         verbose_name='Автор',
         related_name='subscribing',
         on_delete=models.CASCADE,
@@ -152,7 +154,7 @@ class Subscriptions(models.Model):
 
 class Favorites(models.Model):
     user = models.ForeignKey(
-        CustomUser,
+        User,
         verbose_name='Пользователь',
         related_name='favorites',
         on_delete=models.CASCADE,
@@ -175,7 +177,7 @@ class Favorites(models.Model):
 
 class ShoppingCart(models.Model):
     user = models.ForeignKey(
-        CustomUser,
+        User,
         verbose_name='Покупатель',
         related_name='shopping_cart',
         on_delete=models.CASCADE,
