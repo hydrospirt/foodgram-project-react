@@ -1,14 +1,35 @@
-from django.shortcuts import render
-from rest_framework import viewsets, permissions, filters
+from django.shortcuts import get_object_or_404
+from django.contrib.auth import get_user_model
+from django.http import HttpResponseForbidden
+from rest_framework.decorators import action, permission_classes
+from rest_framework.response import Response
+from rest_framework import viewsets, permissions, filters, status
 from api.serializers import UserSerializer, TagSerializer, RecipeSerializer, IngredientSerializer
 from recipes.models import Recipe, Tag, Ingredient
-from users.models import CustomUser
+
+User = get_user_model()
 
 
-class CustomUserViewSet(viewsets.ModelViewSet):
-    queryset = CustomUser.objects.all()
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
     serializer_class = UserSerializer
 
+    @action(
+            methods=('GET',),
+            detail=False,
+            url_path='me',
+            url_name='me',)
+    @permission_classes([permissions.IsAuthenticated])
+    def me(self, request, *args, **kwargs):
+        try:
+            self.object = User.objects.get(pk=request.user.id)
+            serializer = self.get_serializer(self.object)
+            return Response(serializer.data)
+        except:
+            return Response(
+                {"detail": "Ошибка авторизации."},
+                status=status.HTTP_401_UNAUTHORIZED
+                )
 
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
