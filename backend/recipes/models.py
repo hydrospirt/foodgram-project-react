@@ -69,7 +69,8 @@ class Tag(models.Model):
     slug = models.CharField(
         verbose_name='Уникальный фрагмент URL-адреса',
         max_length=200,
-        validators=([RegexValidator(regex=r'^[-a-zA-Z0-9_]+$')])
+        validators=([RegexValidator(regex=r'^[-a-zA-Z0-9_]+$')]),
+        unique=True,
     )
 
     class Meta:
