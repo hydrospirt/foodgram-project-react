@@ -84,7 +84,7 @@ class UserSubSerializer(UserSerializer):
             'recipes_count',
         )
 
-        read_only_fields = '__all__'
+        read_only_fields = '__all__',
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
