@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.http import HttpResponseForbidden
 from rest_framework.decorators import action, permission_classes
 from rest_framework.response import Response
+from djoser.views import UserViewSet
 from rest_framework import viewsets, permissions, filters, status
 from api.serializers import UserSerializer, TagSerializer, RecipeSerializer, IngredientSerializer
 from recipes.models import Recipe, Tag, Ingredient
@@ -10,7 +11,7 @@ from recipes.models import Recipe, Tag, Ingredient
 User = get_user_model()
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(UserViewSet, viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
