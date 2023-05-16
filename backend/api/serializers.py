@@ -71,6 +71,7 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
 class UserSubSerializer(UserSerializer):
     recipes_count = serializers.SerializerMethodField()
     recipes = ShortRecipeSerializer(many=True, read_only=True)
+    is_subscribed = serializers.SerializerMethodField()
     class Meta:
         model = User
         fields = (

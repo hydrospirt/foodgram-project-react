@@ -67,6 +67,15 @@ class UserViewSet(UserViewSet, viewsets.ModelViewSet):
         else:
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
+    @action(methods=('GET',),
+            detail=False,)
+    @permission_classes([permissions.IsAuthenticated])
+    def subscriptions(self, request, *args, **kwargs):
+        user = request.user
+        subs = User.objects.filter(subscribing__user=user)
+        serializer = UserSubSerializer(subs, context={'request': request}, many=True)
+        return Response(serializer.data)
+
 
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
