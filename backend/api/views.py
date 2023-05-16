@@ -5,8 +5,8 @@ from rest_framework.decorators import action, permission_classes
 from rest_framework.response import Response
 from djoser.views import UserViewSet
 from rest_framework import viewsets, permissions, filters, status
-from api.serializers import UserSerializer, TagSerializer, RecipeSerializer, IngredientSerializer
-from recipes.models import Recipe, Tag, Ingredient
+from api.serializers import UserSerializer, TagSerializer, RecipeSerializer, IngredientSerializer, UserSubSerializer
+from recipes.models import Recipe, Tag, Ingredient, Subscriptions
 
 User = get_user_model()
 
@@ -31,6 +31,42 @@ class UserViewSet(UserViewSet, viewsets.ModelViewSet):
                 {"detail": "Ошибка авторизации."},
                 status=status.HTTP_401_UNAUTHORIZED
                 )
+
+    @action(methods=('POST', 'DELETE'),
+            detail=True,)
+    @permission_classes([permissions.IsAuthenticated])
+    def subscribe(self, request, *args, **kwargs):
+        pk = kwargs.get('id',)
+        print(pk)
+        author = get_object_or_404(User, pk=pk)
+        user = request.user
+        if request.method == 'POST':
+            if author == user:
+                return Response(
+                    {'errors': 'Вы не можете подписатся на себя'},
+                    status=status.HTTP_400_BAD_REQUEST)
+            if Subscriptions.objects.filter(author=author, user=user).exists():
+                return Response(
+                    {'errors': 'Вы подписаны на этого пользователя'},
+                    status=status.HTTP_400_BAD_REQUEST)
+            sub = Subscriptions(author=author, user=user)
+            sub.save()
+            serializer = UserSubSerializer(
+                author, context={'request': request}
+            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        elif request.method == 'DELETE':
+            try:
+                Subscriptions.objects.get(author=author, user=user).delete()
+            except Subscriptions.DoesNotExist:
+                return Response(
+                    {'errors': f'Вы не подписаны на пользователя c ID: {pk}'},
+                    status=status.HTTP_400_BAD_REQUEST
+                    )
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
 
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
