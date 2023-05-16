@@ -1,4 +1,5 @@
 import base64
+import djoser.serializers
 from django.db.models import F
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
@@ -7,6 +8,18 @@ from rest_framework import serializers, mixins
 from recipes.models import Recipe, Tag, Ingredient, Subscriptions, Favorites, ShoppingCart
 
 User = get_user_model()
+
+
+class UserCreateSerializer(djoser.serializers.UserCreateSerializer):
+    class Meta:
+        model = User
+        fields=(
+            'email',
+            'username',
+            'first_name',
+            'last_name',
+            'password',
+        )
 
 
 class UserSerializer(serializers.ModelSerializer):
