@@ -12,13 +12,6 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
 
-    def get_is_subscribed(self, obj):
-        user_id = obj.id if isinstance(obj, User) else obj.author.id
-        request_user = self.context.get('request').user.id
-        queryset = Subscriptions.objects.filter(author=user_id,
-                                                user=request_user).exists()
-        return queryset
-
     class Meta:
         model = User
         fields = (
@@ -28,7 +21,27 @@ class UserSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'is_subscribed',
+            'password',
             )
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def get_is_subscribed(self, obj):
+        user_id = obj.id if isinstance(obj, User) else obj.author.id
+        request_user = self.context.get('request').user.id
+        queryset = Subscriptions.objects.filter(author=user_id,
+                                                user=request_user).exists()
+        return queryset
+
+    def create(self, validated_data):
+        user = User(
+            email=validated_data['email'],
+            username=validated_data['username'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+        )
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
