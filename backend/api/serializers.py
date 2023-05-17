@@ -182,11 +182,31 @@ class RecipeSerializer(serializers.ModelSerializer):
                 ingredient=Ingredient.objects.get(pk=ingredient['id']),
                 amount=ingredient['amount'],
             ))
-            IngredientAmount.objects.bulk_create(objects)
+        IngredientAmount.objects.bulk_create(objects)
         for tag in tags:
             recipe.tag.add(tag['id'])
         return recipe
 
+    @atomic
+    def update(self, instance, validated_data):
+        tags = validated_data.pop('tags')
+        ingredients = validated_data.pop('ingredients')
+        for field, value in validated_data.items():
+            if hasattr(instance, field):
+                setattr(instance, field, value)
+        objects = []
+        instance.ingredient.clear()
+        for ingredient in ingredients:
+            ingredient = objects.append(IngredientAmount(
+                recipe=instance,
+                ingredient=Ingredient.objects.get(pk=ingredient['id']),
+                amount=ingredient['amount'],
+            ))
+        IngredientAmount.objects.bulk_create(objects)
+        for tag in tags:
+            instance.tag.add(tag['id'])
+        instance.save()
+        return instance
 
 class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
