@@ -4,8 +4,10 @@ from django.db.models import F
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from rest_framework import serializers, mixins
+from django.db.transaction import atomic
 
-from recipes.models import Recipe, Tag, Ingredient, Subscriptions, Favorites, ShoppingCart
+
+from recipes.models import Recipe, Tag, Ingredient, Subscriptions, Favorites, ShoppingCart, IngredientAmount
 
 User = get_user_model()
 
@@ -144,6 +146,46 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def get_is_in_shopping_cart(self, obj):
         return self.__is_user_anonymous(obj, ShoppingCart)
+
+    def validate(self, data):
+        tags = self.initial_data.get('tags')
+        ingredients = self.initial_data.get('ingredients')
+        keys = {'text', 'name', 'cooking_time'}
+        errors={}
+        for key in keys:
+            if key not in data:
+                errors.update({key: 'Обязательное поле'})
+        if not tags or not ingredients:
+            if tags:
+                errors.update({'ingredients': 'Обязательное поле'})
+            if ingredients:
+                errors.update({'tags': 'Обязательное поле'})
+        if errors:
+            raise serializers.ValidationError(errors)
+        data.update({
+            'tags': tags,
+            'ingredients': ingredients,
+        }
+        )
+        return data
+
+    @atomic
+    def create(self, validated_data):
+        tags = validated_data.pop('tags')
+        ingredients = validated_data.pop('ingredients')
+        recipe = Recipe.objects.create(**validated_data)
+        recipe.save()
+        objects = []
+        for ingredient in ingredients:
+            ingredient = objects.append(IngredientAmount(
+                recipe=recipe,
+                ingredient=Ingredient.objects.get(pk=ingredient['id']),
+                amount=ingredient['amount'],
+            ))
+            IngredientAmount.objects.bulk_create(objects)
+        for tag in tags:
+            recipe.tag.add(tag['id'])
+        return recipe
 
 
 class IngredientSerializer(serializers.ModelSerializer):
