@@ -7,6 +7,7 @@ from djoser.views import UserViewSet
 from rest_framework import viewsets, permissions, filters, status
 from api.serializers import UserSerializer, TagSerializer, RecipeSerializer, IngredientSerializer, UserSubSerializer
 from recipes.models import Recipe, Tag, Ingredient, Subscriptions
+from api.permissions import IsAuthorOrAdminOrReadOnly, IsAdminOrReadOnly
 
 User = get_user_model()
 
@@ -80,20 +81,19 @@ class UserViewSet(UserViewSet, viewsets.ModelViewSet):
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    permission_classes = (permissions.AllowAny,)
-    http_method_names = ('get',)
+    permission_classes = (IsAdminOrReadOnly,)
 
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
+    permission_classes = (IsAuthorOrAdminOrReadOnly,)
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (IsAdminOrReadOnly,)
     search_fields = ('name', )
     filter_backends = (filters.SearchFilter,)
-    http_method_names = ('get',)
