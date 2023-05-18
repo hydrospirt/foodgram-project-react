@@ -1,13 +1,16 @@
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from django.http import HttpResponseForbidden
-from rest_framework.decorators import action, permission_classes
+from rest_framework.decorators import action, permission_classes, renderer_classes
 from rest_framework.response import Response
 from djoser.views import UserViewSet
 from rest_framework import viewsets, permissions, filters, status
-from api.serializers import UserSerializer, TagSerializer, RecipeSerializer, IngredientSerializer, UserSubSerializer, ShortRecipeSerializer
+from api.serializers import UserSerializer, TagSerializer, RecipeSerializer, IngredientSerializer, UserSubSerializer, ShortRecipeSerializer, IngredientAmountSerializer
 from recipes.models import Recipe, Tag, Ingredient, Subscriptions, Favorites, ShoppingCart
 from api.permissions import IsAuthorOrAdminOrReadOnly, IsAdminOrReadOnly
+from django.http import FileResponse
+from api.renders import IngredientDataRendererTXT
+from django.db.models import F, Sum
 
 User = get_user_model()
 
@@ -146,6 +149,25 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    @action(
+        methods=('GET',),
+        detail=False,
+        permission_classes=(permissions.IsAuthenticated,),
+        renderer_classes=[IngredientDataRendererTXT])
+    def download_shopping_cart(self, request, *args, **kwargs):
+        user = request.user
+        queryset = Ingredient.objects.filter(
+            ingredient_amount__recipe__shopping_cart__user=user
+            ).values(
+            'name',
+            'measurement_unit',
+            ).annotate(amount=Sum('ingredient_amount__amount'))
+        print(queryset)
+        serializer = IngredientAmountSerializer(queryset, many=True)
+        file_name = 'foodgram_shopping_cart.txt'
+        return Response(serializer.data, headers={"Content-Disposition": f'attachment; filename="{file_name}"'})
+
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
