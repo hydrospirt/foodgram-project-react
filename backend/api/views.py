@@ -163,7 +163,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'name',
             'measurement_unit',
             ).annotate(amount=Sum('ingredient_amount__amount'))
-        print(queryset)
         serializer = IngredientAmountSerializer(queryset, many=True)
         file_name = 'foodgram_shopping_cart.txt'
         return Response(serializer.data, headers={"Content-Disposition": f'attachment; filename="{file_name}"'})
