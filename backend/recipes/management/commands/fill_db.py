@@ -1,9 +1,13 @@
-import os, csv, json, mimetypes
-from clint.textui import colored
+import csv
+import json
+import mimetypes
+import os
 from pathlib import Path
 from typing import Any
-from progress.bar import Bar
+
+from clint.textui import colored
 from django.core.management.base import BaseCommand, CommandParser
+from progress.bar import Bar
 from recipes.models import Ingredient
 
 PROJECT_DIR = Path(__file__).resolve().parents[4]
@@ -30,23 +34,27 @@ class Command(BaseCommand):
         if not os.path.isfile(file):
             self.stderr.write(f'--- Файл {file} не найден')
             raise SystemExit
-        self.stdout.write(colored.green('+++ Проверка пути файла успешно завершена...'))
+        self.stdout.write(
+            colored.green('+++ Проверка пути файла успешно завершена...'))
         mimetype = mimetypes.MimeTypes().guess_type(file)[0]
 
         if mimetype not in ('text/csv', 'application/json'):
-            self.stderr.write(f'--- Формат файла {file} не относится к CSV или JSON')
+            self.stderr.write(
+                f'--- Формат файла {file} не относится к CSV или JSON')
             raise SystemExit
-        self.stdout.write(colored.green('+++ Проверка формата файла успешно завершена...'))
+        self.stdout.write(
+            colored.green('+++ Проверка формата файла успешно завершена...'))
 
         return mimetype
 
     def clean_to_datebase(self):
         if Ingredient.objects.exists():
-            answer = input('Вы хотите очистить данные об ингредиентах? Д или Н: ')
+            answer = input(
+                'Вы хотите очистить данные об ингредиентах? Д или Н: ')
             if answer.lower() == 'д':
                 Ingredient.objects.all().delete()
             else:
-                self.stderr.write(f'--- Запись невозможна. Очистите таблицу')
+                self.stderr.write('--- Запись невозможна. Очистите таблицу')
                 raise SystemExit
 
     def load_to_datebase(self, file, mimetype):
@@ -57,8 +65,8 @@ class Command(BaseCommand):
                         f, fieldnames=('name', 'measurement_unit'))
                 else:
                     data = json.load(f)
-            except:
-                self.stderr.write(f'--- Ошибка файла')
+            except (csv.Error, TypeError):
+                self.stderr.write('--- Ошибка файла')
                 raise SystemExit
 
             for i in data:
