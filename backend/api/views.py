@@ -43,7 +43,7 @@ class UserViewSet(UserViewSet, viewsets.ModelViewSet):
         if request.method == 'POST':
             if author == user:
                 return Response(
-                    {'errors': 'Вы не можете подписатся на себя'},
+                    {'errors': 'Вы не можете подписаться на себя'},
                     status=status.HTTP_400_BAD_REQUEST)
             if Subscriptions.objects.filter(author=author, user=user).exists():
                 return Response(
@@ -93,7 +93,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             detail=True,
             permission_classes=(permissions.IsAuthenticated,))
     def favorite(self, request, *args, **kwargs):
-        pk = kwargs.get('id',)
+        pk = kwargs.get('pk')
         recipe = get_object_or_404(Recipe, pk=pk)
         user = request.user
         if request.method == 'POST':
