@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from djoser.views import UserViewSet
 from rest_framework import viewsets, permissions, filters, status
 from api.serializers import UserSerializer, TagSerializer, RecipeSerializer, IngredientSerializer, UserSubSerializer, ShortRecipeSerializer
-from recipes.models import Recipe, Tag, Ingredient, Subscriptions, Favorites
+from recipes.models import Recipe, Tag, Ingredient, Subscriptions, Favorites, ShoppingCart
 from api.permissions import IsAuthorOrAdminOrReadOnly, IsAdminOrReadOnly
 
 User = get_user_model()
@@ -112,6 +112,35 @@ class RecipeViewSet(viewsets.ModelViewSet):
             except Favorites.DoesNotExist:
                 return Response(
                     {'errors': f'Рецепта нет в избранном'},
+                    status=status.HTTP_400_BAD_REQUEST
+                    )
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    @action(methods=('POST', 'DELETE'),
+            detail=True,
+            permission_classes=(permissions.IsAuthenticated,))
+    def shopping_cart(self, request, *args, **kwargs):
+        pk = kwargs.get('pk')
+        recipe = get_object_or_404(Recipe, pk=pk)
+        user = request.user
+        if request.method == 'POST':
+            if ShoppingCart.objects.filter(user=user, recipe=recipe).exists():
+                return Response(
+                    {'error': 'Рецепт уже добавлен в список покупок'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            fav = ShoppingCart(user=user, recipe=recipe)
+            fav.save()
+            serializer = ShortRecipeSerializer(recipe)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        elif request.method == 'DELETE':
+            try:
+                ShoppingCart.objects.get(user=user, recipe=recipe).delete()
+            except ShoppingCart.DoesNotExist:
+                return Response(
+                    {'errors': f'Рецепта нет в списке покупок'},
                     status=status.HTTP_400_BAD_REQUEST
                     )
             return Response(status=status.HTTP_204_NO_CONTENT)
