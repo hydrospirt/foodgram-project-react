@@ -137,7 +137,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def get_ingredients(self, obj):
         ingredients = obj.ingredient.values(
-            'id', 'name', 'measurement_unit', amount=F('ingredientamount__amount')
+            'id', 'name', 'measurement_unit', amount=F('ingredient_amount__amount')
         )
         return ingredients
 
@@ -208,7 +208,19 @@ class RecipeSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+
 class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
         fields = '__all__'
+
+
+class IngredientAmountSerializer(serializers.ModelSerializer):
+    amount = serializers.CharField()
+    class Meta:
+        model = Ingredient
+        fields = (
+            'name',
+            'amount',
+            'measurement_unit'
+        )
