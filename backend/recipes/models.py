@@ -1,6 +1,6 @@
-from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.validators import RegexValidator
+from django.db import models
 
 User = get_user_model()
 
@@ -15,19 +15,17 @@ class Recipe(models.Model):
     )
     name = models.CharField(
         verbose_name='Название',
-        max_length=200,
-        )
+        max_length=200)
     image = models.ImageField(
         verbose_name='Картинка',
         upload_to='recipes/',
         help_text='Загрузите изображение',
-        default = 'default.jpg',
+        default='default.jpg',
         blank=False,
     )
     text = models.TextField(
         verbose_name='Описание',
-        max_length=5000,
-        )
+        max_length=5000)
     ingredient = models.ManyToManyField(
         'Ingredient',
         verbose_name='Ингредиенты',
@@ -41,8 +39,7 @@ class Recipe(models.Model):
     )
     cooking_time = models.PositiveIntegerField(
         verbose_name='Время приготовления',
-        default=1,
-        )
+        default=1)
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
         auto_now_add=True,
@@ -125,7 +122,10 @@ class IngredientAmount(models.Model):
     class Meta:
         verbose_name = 'Количество ингредиента'
         verbose_name_plural = 'Количество ингредиентов'
-        constraints = (models.UniqueConstraint(fields=('recipe', 'ingredient',), name='unique_ingredient_amount'),)
+        constraints = (
+            models.UniqueConstraint(
+                fields=('recipe', 'ingredient',),
+                name='unique_ingredient_amount'),)
 
     def __str__(self):
         return f'{self.ingredient} {self.amount}'
@@ -148,7 +148,9 @@ class Subscriptions(models.Model):
     class Meta:
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
-        constraints = (models.UniqueConstraint(fields=('user', 'author',), name='unique_subscriptions'),)
+        constraints = (
+            models.UniqueConstraint(
+                fields=('user', 'author',), name='unique_subscriptions'),)
 
     def __str__(self) -> str:
         return f'{self.user} подписан(-а) на {self.author}'
@@ -171,7 +173,9 @@ class Favorites(models.Model):
     class Meta:
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
-        constraints = (models.UniqueConstraint(fields=('user', 'recipe',), name='unique_favorites'),)
+        constraints = (
+            models.UniqueConstraint(
+                fields=('user', 'recipe',), name='unique_favorites'),)
 
     def __str__(self) -> str:
         return f'{self.recipe} добавлен в избранное {self.user}'
@@ -194,7 +198,9 @@ class ShoppingCart(models.Model):
     class Meta:
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
-        constraints = (models.UniqueConstraint(fields=('user', 'recipe',), name='unique_shopping_cart'),)
+        constraints = (
+            models.UniqueConstraint(
+                fields=('user', 'recipe',), name='unique_shopping_cart'),)
 
     def __str__(self) -> str:
         return f'{self.recipe} в списке покупок {self.user}'
