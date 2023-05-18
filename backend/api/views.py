@@ -1,16 +1,18 @@
-from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
-from django.http import HttpResponseForbidden
-from rest_framework.decorators import action, permission_classes, renderer_classes
-from rest_framework.response import Response
+from django.db.models import Sum
+from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from rest_framework import viewsets, permissions, filters, status
-from api.serializers import UserSerializer, TagSerializer, RecipeSerializer, IngredientSerializer, UserSubSerializer, ShortRecipeSerializer, IngredientAmountSerializer
-from recipes.models import Recipe, Tag, Ingredient, Subscriptions, Favorites, ShoppingCart
-from api.permissions import IsAuthorOrAdminOrReadOnly, IsAdminOrReadOnly
-from django.http import FileResponse
+from recipes.models import (Favorites, Ingredient, Recipe, ShoppingCart,
+                            Subscriptions, Tag)
+from rest_framework import filters, permissions, status, viewsets
+from rest_framework.decorators import action, permission_classes
+from rest_framework.response import Response
+
+from api.permissions import IsAdminOrReadOnly, IsAuthorOrAdminOrReadOnly
 from api.renders import IngredientDataRendererTXT
-from django.db.models import F, Sum
+from api.serializers import (IngredientAmountSerializer, IngredientSerializer,
+                             RecipeSerializer, ShortRecipeSerializer,
+                             TagSerializer, UserSerializer, UserSubSerializer)
 
 User = get_user_model()
 
@@ -19,22 +21,15 @@ class UserViewSet(UserViewSet, viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
-    @action(
-            methods=('GET',),
+    @action(methods=('GET',),
             detail=False,
             url_path='me',
             url_name='me',)
     @permission_classes([permissions.IsAuthenticated])
     def me(self, request, *args, **kwargs):
-        try:
-            self.object = User.objects.get(pk=request.user.id)
-            serializer = self.get_serializer(self.object)
-            return Response(serializer.data)
-        except:
-            return Response(
-                {"detail": "Ошибка авторизации."},
-                status=status.HTTP_401_UNAUTHORIZED
-                )
+        self.object = User.objects.get(pk=request.user.id)
+        serializer = self.get_serializer(self.object)
+        return Response(serializer.data)
 
     @action(methods=('POST', 'DELETE'),
             detail=True,)
@@ -58,17 +53,15 @@ class UserViewSet(UserViewSet, viewsets.ModelViewSet):
                 author, context={'request': request}
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        elif request.method == 'DELETE':
+        if request.method == 'DELETE':
             try:
                 Subscriptions.objects.get(author=author, user=user).delete()
             except Subscriptions.DoesNotExist:
                 return Response(
                     {'errors': f'Вы не подписаны на пользователя c ID: {pk}'},
-                    status=status.HTTP_400_BAD_REQUEST
-                    )
+                    status=status.HTTP_400_BAD_REQUEST)
             return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @action(methods=('GET',),
             detail=False,)
@@ -76,7 +69,8 @@ class UserViewSet(UserViewSet, viewsets.ModelViewSet):
     def subscriptions(self, request, *args, **kwargs):
         user = request.user
         subs = User.objects.filter(subscribing__user=user)
-        serializer = UserSubSerializer(subs, context={'request': request}, many=True)
+        serializer = UserSubSerializer(
+            subs, context={'request': request}, many=True)
         return Response(serializer.data)
 
 
@@ -84,7 +78,6 @@ class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (IsAdminOrReadOnly,)
-
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -109,17 +102,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
             fav.save()
             serializer = ShortRecipeSerializer(recipe)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        elif request.method == 'DELETE':
+        if request.method == 'DELETE':
             try:
                 Favorites.objects.get(user=user, recipe=recipe).delete()
             except Favorites.DoesNotExist:
                 return Response(
-                    {'errors': f'Рецепта нет в избранном'},
-                    status=status.HTTP_400_BAD_REQUEST
-                    )
+                    {'errors': 'Рецепта нет в избранном'},
+                    status=status.HTTP_400_BAD_REQUEST)
             return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @action(methods=('POST', 'DELETE'),
             detail=True,
@@ -138,17 +129,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
             fav.save()
             serializer = ShortRecipeSerializer(recipe)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        elif request.method == 'DELETE':
+        if request.method == 'DELETE':
             try:
                 ShoppingCart.objects.get(user=user, recipe=recipe).delete()
             except ShoppingCart.DoesNotExist:
                 return Response(
-                    {'errors': f'Рецепта нет в списке покупок'},
-                    status=status.HTTP_400_BAD_REQUEST
-                    )
+                    {'errors': 'Рецепта нет в списке покупок'},
+                    status=status.HTTP_400_BAD_REQUEST)
             return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @action(
         methods=('GET',),
@@ -158,15 +147,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def download_shopping_cart(self, request, *args, **kwargs):
         user = request.user
         queryset = Ingredient.objects.filter(
-            ingredient_amount__recipe__shopping_cart__user=user
-            ).values(
+            ingredient_amount__recipe__shopping_cart__user=user).values(
             'name',
-            'measurement_unit',
-            ).annotate(amount=Sum('ingredient_amount__amount'))
+            'measurement_unit'
+        ).annotate(amount=Sum('ingredient_amount__amount'))
         serializer = IngredientAmountSerializer(queryset, many=True)
         file_name = 'foodgram_shopping_cart.txt'
-        return Response(serializer.data, headers={"Content-Disposition": f'attachment; filename="{file_name}"'})
-
+        return Response(
+            serializer.data,
+            headers={"Content-Disposition":
+                     f'attachment; filename="{file_name}"'})
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
