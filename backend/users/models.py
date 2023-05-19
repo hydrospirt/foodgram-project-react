@@ -14,19 +14,23 @@ class CustomUser(AbstractUser):
         verbose_name='Имя пользователя',
         max_length=150,
         unique=True,
-        validators=([RegexValidator(regex=r'^[\w.@+-]+\Z')])
+        validators=([RegexValidator(regex=r'^[\w.@+-]+\Z')]),
+        help_text='Заполните имя пользователя'
     )
     first_name = models.CharField(
         verbose_name='Имя',
         max_length=150,
+        help_text='Заполните свое настоящее имя'
     )
     last_name = models.CharField(
         verbose_name='Фамилия',
         max_length=150,
+        help_text='Заполните свою настоящую фамилию'
     )
     password = models.CharField(
         verbose_name='Пароль',
         max_length=150,
+        help_text='Введите пароль'
     )
     is_active = models.BooleanField(
         default=True
