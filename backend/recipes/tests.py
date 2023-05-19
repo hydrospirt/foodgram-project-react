@@ -44,7 +44,8 @@ class IngredientModelTest(TestCase):
         )
 
     def test_verbose_name(self):
-        """verbose_name всех полей модели "Ingredient" совпадает с ожидаемым."""
+        """verbose_name всех полей модели
+        "Ingredient" совпадает с ожидаемым."""
         ingredient = IngredientModelTest.ingredient
         field_verboses = {
             'name': 'Название',
@@ -153,7 +154,8 @@ class IngredientAmountModelTest(TestCase):
         )
 
     def test_verbose_name(self):
-        """verbose_name всех полей модели "IngredientAmount" совпадает с ожидаемым."""
+        """verbose_name всех полей модели
+        "IngredientAmount" совпадает с ожидаемым."""
         amount = IngredientAmountModelTest.amount
         field_verboses = {
             'recipe': 'Рецепт',
@@ -167,56 +169,61 @@ class IngredientAmountModelTest(TestCase):
                 )
 
 
-# class ShoppingCartModelTest(TestCase):
-#     @classmethod
-#     def setUpClass(cls):
-#         super().setUpClass()
-#         cls.user = User.objects.create(username='shoptestuser')
-#         cls.author = User.objects.create(username='testshopauthor')
-#         cls.recipe = Recipe.objects.create(
-#             author=cls.author,
-#             name='Тестовый рецепт',
-#             text='Тестовое описание',
-#             cooking_time=600,
-#             pub_date=datetime.now()
-#         )
-#         cls.shop_cart = ShoppingCart.objects.create(
-#             user=cls.user, recipe=cls.recipe
-#         )
+class ShoppingCartModelTest(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = User.objects.create_user(username='shoptestuser',
+                                            email='shoptester@test.ru')
+        cls.author = User.objects.create_user(username='testshopauthor',
+                                              email='authorshop@test.ru')
+        cls.recipe = Recipe.objects.create(
+            author=cls.author,
+            name='Тестовый рецепт',
+            text='Тестовое описание',
+            cooking_time=600,
+            pub_date=datetime.now()
+        )
+        cls.shop_cart = ShoppingCart.objects.create(
+            user=cls.user, recipe=cls.recipe
+        )
+
+    def test_verbose_name(self):
+        shop_cart = ShoppingCartModelTest.shop_cart
+        field_verboses = {
+            'user': 'Покупатель',
+            'recipe': 'Рецепт'
+        }
+        for value, expected in field_verboses.items():
+            with self.subTest(value=value):
+                self.assertEqual(
+                    shop_cart._meta.get_field(value).verbose_name, expected
+                )
 
 
-#     def test_verbose_name(self):
-#         shop_cart = ShoppingCartModelTest.shop_cart
-#         field_verboses = {
-#             'user': 'Покупатель',
-#             'recipe': 'Рецепт'
-#         }
-#         for value, expected in field_verboses.items():
-#             with self.subTest(value=value):
-#                 self.assertEqual(
-#                     shop_cart._meta.get_field(value).verbose_name, expected
-#                 )
+class SubscriptionsModelTest(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.subscriber = User.objects.create_user(username='testusersub',
+                                                  email='subtest@test.ru')
+        cls.author = User.objects.create_user(username='testsubauthor',
+                                              email='authsub@test.ru')
+        cls.subscriptions = Subscriptions.objects.create(
+            user=cls.subscriber,
+            author=cls.author,
+        )
 
-# class SubscriptionsModelTest(TestCase):
-#     @classmethod
-#     def setUpClass(cls):
-#         super().setUpClass()
-#         cls.subscriber = User.objects.create(username='testusersub')
-#         cls.author = User.objects.create(username='testsubauthor')
-#         cls.subscriptions = Subscriptions.objects.create(
-#             user=cls.subscriber,
-#             author=cls.author,
-#         )
-
-#     def test_verbose_name(self):
-#         """verbose_name всех полей модели "Subscriptions" совпадает с ожидаемым."""
-#         sub = SubscriptionsModelTest.subscriptions
-#         field_verboses = {
-#             'user': 'Подписчик',
-#             'author': 'Автор'
-#         }
-#         for value, expected in field_verboses.items():
-#             with self.subTest(value=value):
-#                 self.assertEqual(
-#                     sub._meta.get_field(value).verbose_name, expected
-#                 )
+    def test_verbose_name(self):
+        """verbose_name всех полей модели
+        "Subscriptions" совпадает с ожидаемым."""
+        sub = SubscriptionsModelTest.subscriptions
+        field_verboses = {
+            'user': 'Подписчик',
+            'author': 'Автор'
+        }
+        for value, expected in field_verboses.items():
+            with self.subTest(value=value):
+                self.assertEqual(
+                    sub._meta.get_field(value).verbose_name, expected
+                )
