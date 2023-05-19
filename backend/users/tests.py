@@ -1,4 +1,5 @@
 from django.test import TestCase
+
 from users.models import CustomUser
 
 
@@ -14,62 +15,33 @@ class UserModelTest(TestCase):
             password='Gsdfks5252',
         )
 
-    def test_email_label(self):
-        """verbose_name поля email совпадает с ожидаемым."""
+    def test_verbose_name(self):
+        """verbose_name всех полей совпадает с ожидаемым."""
         user = UserModelTest.user
-        verbose = user._meta.get_field('email').verbose_name
-        self.assertEqual(verbose, 'Адрес электронной почты')
+        field_verboses = {
+            'email': 'Адрес электронной почты',
+            'username': 'Имя пользователя',
+            'first_name': 'Имя',
+            'last_name': 'Фамилия',
+            'password': 'Пароль'
+        }
+        for value, expected in field_verboses.items():
+            with self.subTest(value=value):
+                self.assertEqual(
+                    user._meta.get_field(value).verbose_name, expected
+                )
 
-    def test_email_help_text(self):
-        """help_text поля title совпадает с ожидаемым."""
+    def test_help_text(self):
         user = UserModelTest.user
-        help_text = user._meta.get_field('email').help_text
-        self.assertEqual(help_text, 'Заполните адрес электронной почты')
-
-    def test_username_label(self):
-        """verbose_name поля username совпадает с ожидаемым."""
-        user = UserModelTest.user
-        verbose = user._meta.get_field('username').verbose_name
-        self.assertEqual(verbose, 'Имя пользователя')
-
-    def test_username_help_text(self):
-        """help_text поля username совпадает с ожидаемым."""
-        user = UserModelTest.user
-        help_text = user._meta.get_field('username').help_text
-        self.assertEqual(help_text, 'Заполните имя пользователя')
-
-    def test_first_name_label(self):
-        """verbose_name поля first_name совпадает с ожидаемым."""
-        user = UserModelTest.user
-        verbose = user._meta.get_field('first_name').verbose_name
-        self.assertEqual(verbose, 'Имя')
-
-    def test_first_name_help_text(self):
-        """help_text поля username совпадает с ожидаемым."""
-        user = UserModelTest.user
-        help_text = user._meta.get_field('first_name').help_text
-        self.assertEqual(help_text, 'Заполните свое настоящее имя')
-
-    def test_last_name_label(self):
-        """verbose_name поля last_name совпадает с ожидаемым."""
-        user = UserModelTest.user
-        verbose = user._meta.get_field('last_name').verbose_name
-        self.assertEqual(verbose, 'Фамилия')
-
-    def test_first_name_help_text(self):
-        """help_text поля last_name совпадает с ожидаемым."""
-        user = UserModelTest.user
-        help_text = user._meta.get_field('last_name').help_text
-        self.assertEqual(help_text, 'Заполните свою настоящую фамилию')
-
-    def test_password_label(self):
-        """verbose_name поля password совпадает с ожидаемым."""
-        user = UserModelTest.user
-        verbose = user._meta.get_field('password').verbose_name
-        self.assertEqual(verbose, 'Пароль')
-
-    def test_password_help_text(self):
-        """help_text поля last_name совпадает с ожидаемым."""
-        user = UserModelTest.user
-        help_text = user._meta.get_field('password').help_text
-        self.assertEqual(help_text, 'Введите пароль')
+        field_help_texts = {
+            'email': 'Заполните адрес электронной почты',
+            'username': 'Заполните имя пользователя',
+            'first_name': 'Заполните свое настоящее имя',
+            'last_name': 'Заполните свою настоящую фамилию',
+            'password': 'Введите пароль',
+        }
+        for value, expected in field_help_texts.items():
+            with self.subTest(value=value):
+                self.assertEqual(
+                    user._meta.get_field(value).help_text, expected
+                )
