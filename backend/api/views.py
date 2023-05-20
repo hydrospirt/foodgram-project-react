@@ -8,6 +8,7 @@ from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action, permission_classes
 from rest_framework.response import Response
 
+from api.paginators import LimitPageNumberPagination
 from api.permissions import IsAdminOrReadOnly, IsAuthorOrAdminOrReadOnly
 from api.renders import IngredientDataRendererTXT
 from api.serializers import (IngredientAmountSerializer, IngredientSerializer,
@@ -85,6 +86,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     permission_classes = (IsAuthorOrAdminOrReadOnly,)
+    pagination_class = LimitPageNumberPagination
 
     @action(methods=('POST', 'DELETE'),
             detail=True,
