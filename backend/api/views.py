@@ -90,6 +90,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthorOrAdminOrReadOnly,)
     pagination_class = LimitPageNumberPagination
 
+    def get_queryset(self):
+        queryset = self.queryset
+        author = self.request.query_params.get('author')
+        if author:
+            return queryset.filter(author=author)
+        tags = self.request.query_params.getlist('tags')
+        if tags:
+            return queryset.filter(tags__slug__in=tags).distinct()
+        if self.request.user.is_anonymous:
+            return queryset
+        return queryset
+
+
     @action(methods=('POST', 'DELETE'),
             detail=True,
             permission_classes=(permissions.IsAuthenticated,))
