@@ -1,4 +1,5 @@
 from urllib.parse import unquote
+from itertools import chain
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
@@ -167,8 +168,6 @@ class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (IsAdminOrReadOnly,)
-    # search_fields = ('^name', )
-    # filter_backends = (filters.SearchFilter,)
     pagination_class = None
 
     def get_queryset(self):
@@ -177,5 +176,8 @@ class IngredientViewSet(viewsets.ModelViewSet):
         if name:
             name = name.lower()
             istartwith_query = queryset.filter(name__istartswith=name)
-            queryset = istartwith_query
+            icontains_query = queryset.filter(name__icontains=name)
+            results = set(chain(istartwith_query, icontains_query))
+            queryset = results
+
         return queryset
