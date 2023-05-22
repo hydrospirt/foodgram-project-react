@@ -17,7 +17,8 @@ class AdminRecipe(admin.ModelAdmin):
     list_display = (
         'name',
         'author',
-        'get_text',
+        'short_text',
+        'amount_favorites',
         'pub_date',
     )
     list_filter = ('author', 'name', 'tag')
@@ -32,8 +33,8 @@ class AdminRecipe(admin.ModelAdmin):
         return obj.favorites.count()
 
     @admin.display(description='Текст')
-    def get_text(self):
-        return self.text[:20]
+    def short_text(self, obj):
+        return obj.text[:20]
 
 
 @admin.register(Ingredient)
