@@ -54,6 +54,10 @@ class Recipe(models.Model):
     def __str__(self):
         return self.name
 
+    def clean(self):
+        self.name = self.name.capitalize()
+        return super().clean()
+
 
 class Tag(models.Model):
     name = models.CharField(
@@ -82,6 +86,11 @@ class Tag(models.Model):
     def __str__(self):
         return self.name
 
+    def clean(self):
+        self.name = self.name.lower()
+        self.slug = self.slug.lower()
+        return super().clean()
+
 
 class Ingredient(models.Model):
     name = models.CharField(
@@ -100,6 +109,11 @@ class Ingredient(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+    def clean(self):
+        self.name = self.name.lower()
+        self.measurement_unit = self.measurement_unit.lower()
+        return super().clean()
 
 
 class IngredientAmount(models.Model):
