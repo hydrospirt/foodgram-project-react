@@ -32,7 +32,7 @@ class Recipe(models.Model):
         related_name='recipes',
         through='IngredientAmount'
     )
-    tag = models.ManyToManyField(
+    tags = models.ManyToManyField(
         'Tag',
         verbose_name='Теги',
         related_name='recipes',
