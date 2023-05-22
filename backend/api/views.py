@@ -1,14 +1,4 @@
-from urllib.parse import unquote
 from itertools import chain
-from django.contrib.auth import get_user_model
-from django.db.models import Sum
-from django.shortcuts import get_object_or_404
-from djoser.views import UserViewSet
-from recipes.models import (Favorites, Ingredient, Recipe, ShoppingCart,
-                            Subscriptions, Tag)
-from rest_framework import filters, permissions, status, viewsets
-from rest_framework.decorators import action, permission_classes
-from rest_framework.response import Response
 
 from api.paginators import LimitPageNumberPagination
 from api.permissions import IsAdminOrReadOnly, IsAuthorOrAdminOrReadOnly
@@ -16,6 +6,15 @@ from api.renders import IngredientDataRendererTXT
 from api.serializers import (IngredientAmountSerializer, IngredientSerializer,
                              RecipeSerializer, ShortRecipeSerializer,
                              TagSerializer, UserSerializer, UserSubSerializer)
+from django.contrib.auth import get_user_model
+from django.db.models import Sum
+from django.shortcuts import get_object_or_404
+from djoser.views import UserViewSet
+from recipes.models import (Favorites, Ingredient, Recipe, ShoppingCart,
+                            Subscriptions, Tag)
+from rest_framework import permissions, status, viewsets
+from rest_framework.decorators import action, permission_classes
+from rest_framework.response import Response
 
 User = get_user_model()
 
@@ -101,7 +100,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if self.request.user.is_anonymous:
             return queryset
         return queryset
-
 
     @action(methods=('POST', 'DELETE'),
             detail=True,
@@ -192,5 +190,5 @@ class IngredientViewSet(viewsets.ModelViewSet):
             icontains_query = queryset.filter(name__icontains=name)
             results = set(chain(istartwith_query, icontains_query))
             queryset = results
-
-        return queryset
+            return queryset
+        return super().get_queryset()
