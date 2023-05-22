@@ -30,6 +30,6 @@ _________________________________________________________________
                 ' '.join(str(i) for i in list(ingredient_data.values()))
                 + '\n')
         text_buffer.write('_' * 65 + '\n')
-        text_buffer.write(f'{"Создано в приложении ©": ^65}' + '\n')
+        text_buffer.write(f'{"Большое спасибо за использование нашего приложения Foodgram ©": ^65}' + '\n')
         text_buffer.write('_' * 65 + '\n')
         return text_buffer.getvalue()
