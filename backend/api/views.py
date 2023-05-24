@@ -178,9 +178,7 @@ class IngredientViewSet(viewsets.ModelViewSet):
         name = self.request.GET.get('search', '')
         if name:
             name = name.lower()
-            istartwith_query = queryset.filter(name__istartswith=name)
             icontains_query = queryset.filter(name__icontains=name)
-            results = set(chain(istartwith_query, icontains_query))
-            queryset = results
+            queryset = icontains_query
             return queryset
         return super().get_queryset()
