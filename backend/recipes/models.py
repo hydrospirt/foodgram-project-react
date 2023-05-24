@@ -1,6 +1,6 @@
-from django.contrib.auth import get_user_model
-from django.core.validators import RegexValidator, MinValueValidator
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 
 User = get_user_model()
@@ -43,7 +43,8 @@ class Recipe(models.Model):
         validators=(
             MinValueValidator(
                 limit_value=settings.MIN_COOKING_TIME,
-                message='Укажите время приготовления, которое больше, либо равно 1')),
+                message='Укажите время приготовления, '
+                        + 'которое больше, либо равно 1')),
         default=1)
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
