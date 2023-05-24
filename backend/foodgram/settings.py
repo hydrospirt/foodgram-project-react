@@ -176,3 +176,7 @@ DJOSER = {
      },
      'HIDE_USERS': False
 }
+
+# Константы приложения Recipes для валидации
+MIN_TIME_COOKING = 1
+MIN_AMOUNT = 1
