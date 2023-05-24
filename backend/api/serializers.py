@@ -168,11 +168,10 @@ class RecipeSerializer(serializers.ModelSerializer):
         for key in keys:
             if key not in data:
                 errors.update({key: 'Обязательное поле'})
-        if not tags or not ingredients:
-            if tags:
-                errors.update({'ingredients': 'Обязательное поле'})
-            if ingredients:
-                errors.update({'tags': 'Обязательное поле'})
+        if not tags:
+            errors.update({'tags': 'Обязательное поле'})
+        if not ingredients:
+            errors.update({'ingredients': 'Обязательное поле'})
         if errors:
             raise serializers.ValidationError(errors)
         data.update({
