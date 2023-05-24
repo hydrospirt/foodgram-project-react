@@ -13,7 +13,7 @@ from djoser.views import UserViewSet
 from recipes.models import (Favorites, Ingredient, Recipe, ShoppingCart,
                             Subscriptions, Tag)
 from rest_framework import permissions, status, viewsets
-from rest_framework.decorators import action, permission_classes
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.conf import settings
 
@@ -27,16 +27,16 @@ class UserViewSet(UserViewSet, viewsets.ModelViewSet):
     @action(methods=('GET',),
             detail=False,
             url_path='me',
-            url_name='me',)
-    @permission_classes([permissions.IsAuthenticated])
+            url_name='me',
+            permission_classes=(permissions.IsAuthenticated,))
     def me(self, request, *args, **kwargs):
         self.object = User.objects.get(pk=request.user.id)
         serializer = self.get_serializer(self.object)
         return Response(serializer.data)
 
     @action(methods=('POST', 'DELETE'),
-            detail=True,)
-    @permission_classes([permissions.IsAuthenticated])
+            detail=True,
+            permission_classes=(permissions.IsAuthenticated,))
     def subscribe(self, request, *args, **kwargs):
         pk = kwargs.get('id',)
         author = get_object_or_404(User, pk=pk)
@@ -67,8 +67,8 @@ class UserViewSet(UserViewSet, viewsets.ModelViewSet):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @action(methods=('GET',),
-            detail=False,)
-    @permission_classes([permissions.IsAuthenticated])
+            detail=False,
+            permission_classes=(permissions.IsAuthenticated,))
     def subscriptions(self, request, *args, **kwargs):
         user = request.user
         subs = User.objects.filter(subscribing__user=user)
