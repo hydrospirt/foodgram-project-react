@@ -41,7 +41,7 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
 
     def get_is_subscribed(self, obj):
-        user_id = obj.id if isinstance(obj, User) else obj.author.id
+        user_id = obj.id
         request_user = self.context.get('request').user.id
         return Subscriptions.objects.filter(author=user_id,
                                             user=request_user).exists()
