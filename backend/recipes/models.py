@@ -133,7 +133,7 @@ class IngredientAmount(models.Model):
         on_delete=models.CASCADE,
         related_name='ingredient_amount'
     )
-    amount = models.PositiveIntegerField(
+    amount = models.PositiveSmallIntegerField(
         verbose_name='Количество',
     )
 
