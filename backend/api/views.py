@@ -15,6 +15,7 @@ from recipes.models import (Favorites, Ingredient, Recipe, ShoppingCart,
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action, permission_classes
 from rest_framework.response import Response
+from django.conf import settings
 
 User = get_user_model()
 
@@ -168,11 +169,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'measurement_unit'
         ).annotate(amount=Sum('ingredient_amount__amount'))
         serializer = IngredientAmountSerializer(queryset, many=True)
-        file_name = 'foodgram_shopping_cart.txt'
         return Response(
             serializer.data,
             headers={"Content-Disposition":
-                     f'attachment; filename="{file_name}"'})
+                     f'attachment; filename="{settings.FILE_NAME}"'})
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
