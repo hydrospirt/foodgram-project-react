@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, MinValueValidator
+from django.conf import settings
 from django.db import models
 
 User = get_user_model()
@@ -37,8 +38,12 @@ class Recipe(models.Model):
         verbose_name='Теги',
         related_name='recipes',
     )
-    cooking_time = models.PositiveIntegerField(
+    cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления',
+        validators=(
+            MinValueValidator(
+                limit_value=settings.MIN_COOKING_TIME,
+                message='Укажите время приготовления, которое больше, либо равно 1')),
         default=1)
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
@@ -134,6 +139,10 @@ class IngredientAmount(models.Model):
     )
     amount = models.PositiveSmallIntegerField(
         verbose_name='Количество',
+        validators=(
+            MinValueValidator(
+                limit_value=settings.MIN_AMOUNT,
+                message='Укажите количество, которое больше, либо равно 1')),
     )
 
     class Meta:
