@@ -16,6 +16,8 @@ from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.conf import settings
+from django_filters.rest_framework import DjangoFilterBackend
+from api.filters import RecipeFilter
 
 User = get_user_model()
 
@@ -89,18 +91,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
     permission_classes = (IsAuthorOrAdminOrReadOnly,)
     pagination_class = LimitPageNumberPagination
-
-    def get_queryset(self):
-        queryset = self.queryset
-        author = self.request.query_params.get('author')
-        if author:
-            return queryset.filter(author=author)
-        tags = self.request.query_params.getlist('tags')
-        if tags:
-            return queryset.filter(tags__slug__in=tags).distinct()
-        if self.request.user.is_anonymous:
-            return queryset
-        return queryset
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = RecipeFilter
 
     @action(methods=('POST', 'DELETE'),
             detail=True,
