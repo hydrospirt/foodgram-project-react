@@ -6,9 +6,8 @@ from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.db.models import F
 from django.db.transaction import atomic
-from rest_framework import serializers, status
+from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from rest_framework.validators import UniqueTogetherValidator
 
 from recipes.models import (Favorites, Ingredient, IngredientAmount, Recipe,
                             ShoppingCart, Subscriptions, Tag)
@@ -95,26 +94,23 @@ class UserSubSerializer(UserSerializer):
             'recipes_count',
         )
         read_only_fields = '__all__',
-        validators = (
-            UniqueTogetherValidator(
-                queryset=Subscriptions.objects.all(),
-                fields=('user', 'author'),
-                message='Подписка на данного автора уже оформлена',
-            ),
-        )
+        extra_kwargs = {
+            'email': {'required': False},
+            'username': {'required': False},
+            'first_name': {'required': False},
+            'last_name': {'required': False}
+        }
 
     def validate(self, data):
         author = self.instance
         user = self.context.get('request').user
         if Subscriptions.objects.filter(author=author, user=user).exists():
             raise ValidationError(
-                detail='Вы уже подписаны на этого пользователя!',
-                code=status.HTTP_400_BAD_REQUEST
+                {'errors': 'Вы уже подписаны на этого пользователя'},
             )
         if user == author:
             raise ValidationError(
-                detail='Вы не можете подписаться на самого себя!',
-                code=status.HTTP_400_BAD_REQUEST
+                {'errors': 'Вы не сможете подписаться на себя'},
             )
         return data
 
