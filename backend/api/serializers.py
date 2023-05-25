@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.db.models import F
 from django.db.transaction import atomic
-from rest_framework import serializers
+from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
 
 from recipes.models import (Favorites, Ingredient, IngredientAmount, Recipe,
@@ -107,10 +107,12 @@ class UserSubSerializer(UserSerializer):
         if Subscriptions.objects.filter(author=author, user=user).exists():
             raise ValidationError(
                 {'errors': 'Вы уже подписаны на этого пользователя'},
+                status=status.HTTP_400_BAD_REQUEST
             )
         if user == author:
             raise ValidationError(
                 {'errors': 'Вы не сможете подписаться на себя'},
+                status=status.HTTP_400_BAD_REQUEST
             )
         return data
 
