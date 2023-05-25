@@ -92,7 +92,7 @@ class RecipeModelTest(TestCase):
             'image': 'Картинка',
             'text': 'Описание',
             'ingredient': 'Ингредиенты',
-            'tag': 'Теги',
+            'tags': 'Теги',
             'cooking_time': 'Время приготовления',
             'pub_date': 'Дата публикации',
         }
