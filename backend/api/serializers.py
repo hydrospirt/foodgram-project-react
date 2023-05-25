@@ -1,13 +1,17 @@
 import base64
 
 import djoser.serializers
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.db.models import F
 from django.db.transaction import atomic
+from rest_framework import serializers, status
+from rest_framework.exceptions import ValidationError
+from rest_framework.validators import UniqueTogetherValidator
+
 from recipes.models import (Favorites, Ingredient, IngredientAmount, Recipe,
                             ShoppingCart, Subscriptions, Tag)
-from rest_framework import serializers
 
 User = get_user_model()
 
@@ -90,8 +94,29 @@ class UserSubSerializer(UserSerializer):
             'recipes',
             'recipes_count',
         )
-
         read_only_fields = '__all__',
+        validators = (
+            UniqueTogetherValidator(
+                queryset=Subscriptions.objects.all(),
+                fields=('user', 'author'),
+                message='Подписка на данного автора уже оформлена',
+            ),
+        )
+
+    def validate(self, data):
+        author = self.instance
+        user = self.context.get('request').user
+        if Subscriptions.objects.filter(author=author, user=user).exists():
+            raise ValidationError(
+                detail='Вы уже подписаны на этого пользователя!',
+                code=status.HTTP_400_BAD_REQUEST
+            )
+        if user == author:
+            raise ValidationError(
+                detail='Вы не можете подписаться на самого себя!',
+                code=status.HTTP_400_BAD_REQUEST
+            )
+        return data
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
@@ -160,6 +185,23 @@ class RecipeSerializer(serializers.ModelSerializer):
     def get_is_in_shopping_cart(self, obj):
         return self.__is_user_anonymous(obj, ShoppingCart)
 
+    def validate_cooking_time(self, data):
+        if data < settings.MIN_TIME_COOKING:
+            raise serializers.ValidationError(
+                {'detail': 'Время приготовления дожно '
+                 + 'быть больше, либо равно 1 минуте'})
+        return data
+
+    def sum_amount_ingredients(self, lst):
+        dct = {}
+        for ingredient in lst:
+            if ingredient['id'] in dct:
+                dct[ingredient['id']] += ingredient['amount']
+            else:
+                dct[ingredient['id']] = ingredient['amount']
+        return [{'id': ingredient, 'amount': value}
+                for ingredient, value in dct.items()]
+
     def validate(self, data):
         tags = self.initial_data.get('tags')
         ingredients = self.initial_data.get('ingredients')
@@ -174,6 +216,19 @@ class RecipeSerializer(serializers.ModelSerializer):
             errors.update({'ingredients': 'Обязательное поле'})
         if errors:
             raise serializers.ValidationError(errors)
+
+        for ingredient in ingredients:
+            if int(ingredient['amount']) < settings.MIN_AMOUNT:
+                raise serializers.ValidationError(
+                    {'amount': f'Укажите количество {ingredient}, '
+                     + 'которое больше, либо равно 1'})
+            if int(ingredient['id']) < 0:
+                raise serializers.ValidationError(
+                    {'id': f'id элемента {ingredient}, '
+                     + 'не может быть отрицательным'})
+        ingredients_ids = [ingredient['id'] for ingredient in ingredients]
+        if len(ingredients) != len(set(ingredients_ids)):
+            ingredients = self.sum_amount_ingredients(ingredients)
         data.update({
             'tags': tags,
             'ingredients': ingredients,
@@ -196,7 +251,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             ))
         IngredientAmount.objects.bulk_create(objects)
         for tag in tags:
-            recipe.tag.add(tag['id'])
+            recipe.tags.add(tag['id'])
         return recipe
 
     @atomic
@@ -216,7 +271,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             ))
         IngredientAmount.objects.bulk_create(objects)
         for tag in tags:
-            instance.tag.add(tag['id'])
+            instance.tags.add(tag['id'])
         instance.save()
         return instance
 
