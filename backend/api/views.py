@@ -1,21 +1,22 @@
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.db.models import Sum
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from djoser.views import UserViewSet
+from rest_framework import permissions, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
+from api.filters import RecipeFilter
 from api.paginators import LimitPageNumberPagination
 from api.permissions import IsAdminOrReadOnly, IsAuthorOrAdminOrReadOnly
 from api.renders import IngredientDataRendererTXT
 from api.serializers import (IngredientAmountSerializer, IngredientSerializer,
                              RecipeSerializer, ShortRecipeSerializer,
                              TagSerializer, UserSerializer, UserSubSerializer)
-from django.contrib.auth import get_user_model
-from django.db.models import Sum
-from django.shortcuts import get_object_or_404
-from djoser.views import UserViewSet
 from recipes.models import (Favorites, Ingredient, Recipe, ShoppingCart,
                             Subscriptions, Tag)
-from rest_framework import permissions, status, viewsets, mixins
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from django.conf import settings
-from django_filters.rest_framework import DjangoFilterBackend
-from api.filters import RecipeFilter
 
 User = get_user_model()
 
@@ -42,40 +43,25 @@ class UserViewSet(UserViewSet, viewsets.ModelViewSet):
         author = get_object_or_404(User, pk=pk)
         user = self.request.user
         if request.method == 'POST':
-
-            # if author == user:
-            #     return Response(
-            #         {'errors': 'Вы не можете подписаться на себя'},
-            #         status=status.HTTP_400_BAD_REQUEST)
-            # if Subscriptions.objects.filter(author=author, user=user).exists():
-            #     return Response(
-            #         {'errors': 'Вы подписаны на этого пользователя'},
-            #         status=status.HTTP_400_BAD_REQUEST)
-            # sub = Subscriptions(author=author, user=user)
-            # sub.save()
-            # data = {
-            #     'email': author.email,
-            #     'username': author.username,
-            #     'first_name': author.first_name,
-            #     'last_name': author.last_name,
-            # }
-
             serializer = UserSubSerializer(
-                author, data=request.data, context={'request': request,
-                                            'user': user}
+                author, data=request.data, context={'request': request}
             )
             if serializer.is_valid():
                 sub = Subscriptions(author=author, user=user)
                 sub.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    serializer.data,
+                    status=status.HTTP_201_CREATED)
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST)
         if request.method == 'DELETE':
             if Subscriptions.objects.filter(author=author, user=user).exists():
                 Subscriptions.objects.get(author=author, user=user).delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
             return Response(
-                    {'errors': f'Вы не подписаны на пользователя c ID: {pk}'},
-                    status=status.HTTP_400_BAD_REQUEST)
+                {'errors': f'Вы не подписаны на пользователя c ID: {pk}'},
+                status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @action(methods=('GET',),
@@ -126,8 +112,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 Favorites.objects.get(user=user, recipe=recipe).delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
             return Response(
-                    {'errors': 'Рецепта нет в избранном'},
-                    status=status.HTTP_400_BAD_REQUEST)
+                {'errors': 'Рецепта нет в избранном'},
+                status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @action(methods=('POST', 'DELETE'),
@@ -152,8 +138,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 ShoppingCart.objects.get(user=user, recipe=recipe).delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
             return Response(
-                    {'errors': 'Рецепта нет в списке покупок'},
-                    status=status.HTTP_400_BAD_REQUEST)
+                {'errors': 'Рецепта нет в списке покупок'},
+                status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @action(
