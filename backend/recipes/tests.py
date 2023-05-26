@@ -2,7 +2,6 @@ from datetime import datetime
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-
 from recipes.models import (Favorites, Ingredient, IngredientAmount, Recipe,
                             ShoppingCart, Subscriptions, Tag)
 
