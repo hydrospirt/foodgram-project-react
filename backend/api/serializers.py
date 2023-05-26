@@ -249,7 +249,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             ))
         IngredientAmount.objects.bulk_create(objects)
         for tag in tags:
-            recipe.tags.add(tag['id'])
+            recipe.tags.add(tag)
         return recipe
 
     @atomic
@@ -269,7 +269,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             ))
         IngredientAmount.objects.bulk_create(objects)
         for tag in tags:
-            instance.tags.add(tag['id'])
+            instance.tags.add(tag)
         instance.save()
         return instance
 
