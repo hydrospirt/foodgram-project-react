@@ -6,11 +6,10 @@ from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.db.models import F
 from django.db.transaction import atomic
-from rest_framework import serializers, status
-from rest_framework.exceptions import ValidationError
-
 from recipes.models import (Favorites, Ingredient, IngredientAmount, Recipe,
                             ShoppingCart, Subscriptions, Tag)
+from rest_framework import serializers, status
+from rest_framework.exceptions import ValidationError
 
 User = get_user_model()
 
