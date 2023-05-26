@@ -124,6 +124,10 @@ class ApiURLTests(TestCase):
             '/api/recipes/download_shopping_cart/'
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertIn('Тестовый ингредиент', str(response.data))
+        self.assertIn('100', str(response.data))
+        self.assertIn('attachment', str(response.headers))
+        self.assertIn('"foodgram_shopping_cart.txt"', str(response.headers))
 
     def test_shopping_cart_delete(self):
         delete = self.auth_follower.delete(
