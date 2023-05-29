@@ -21,6 +21,8 @@ class ErrorMessage:
     TIME_COOKING_ERROR = {'detail': 'Время приготовления дожно быть больше, '
                           + f'либо равно {settings.MIN_TIME_COOKING} минуте'}
     MIN_AMOUNT_ERROR = f'которое больше, либо равно {settings.MIN_AMOUNT}'
+    ALREADY_INGREDIENT_ERROR = {'errors': 'Нельзя добавлять '
+                                + 'одинаковые ингредиенты'}
 
 
 class UserCreateSerializer(djoser.serializers.UserCreateSerializer):
@@ -197,16 +199,6 @@ class RecipeSerializer(serializers.ModelSerializer, ErrorMessage):
                 self.TIME_COOKING_ERROR)
         return data
 
-    def sum_amount_ingredients(self, lst):
-        dct = {}
-        for ingredient in lst:
-            if ingredient['id'] in dct:
-                dct[ingredient['id']] += ingredient['amount']
-            else:
-                dct[ingredient['id']] = ingredient['amount']
-        return [{'id': ingredient, 'amount': value}
-                for ingredient, value in dct.items()]
-
     def validate(self, data):
         tags = self.initial_data.get('tags')
         ingredients = self.initial_data.get('ingredients')
@@ -233,7 +225,8 @@ class RecipeSerializer(serializers.ModelSerializer, ErrorMessage):
                      + 'не может быть отрицательным'})
         ingredients_ids = [ingredient['id'] for ingredient in ingredients]
         if len(ingredients) != len(set(ingredients_ids)):
-            ingredients = self.sum_amount_ingredients(ingredients)
+            raise serializers.ValidationError(
+                self.ALREADY_INGREDIENT_ERROR)
         data.update({
             'tags': tags,
             'ingredients': ingredients,
