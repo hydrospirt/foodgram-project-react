@@ -185,8 +185,8 @@ class RecipeSerializer(serializers.ModelSerializer):
     def validate_cooking_time(self, data):
         if data < settings.MIN_TIME_COOKING:
             raise serializers.ValidationError(
-                {'detail': 'Время приготовления дожно '
-                 + 'быть больше, либо равно 1 минуте'})
+                {'detail': 'Время приготовления дожно быть больше, '
+                 + f'либо равно {settings.MIN_TIME_COOKING} минуте'})
         return data
 
     def sum_amount_ingredients(self, lst):
@@ -218,7 +218,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             if int(ingredient['amount']) < settings.MIN_AMOUNT:
                 raise serializers.ValidationError(
                     {'amount': f'Укажите количество {ingredient}, '
-                     + 'которое больше, либо равно 1'})
+                     + f'которое больше, либо равно {settings.MIN_AMOUNT}'})
             if int(ingredient['id']) < 0:
                 raise serializers.ValidationError(
                     {'id': f'id элемента {ingredient}, '
