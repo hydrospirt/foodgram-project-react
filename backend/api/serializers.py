@@ -14,6 +14,15 @@ from rest_framework.exceptions import ValidationError
 User = get_user_model()
 
 
+class ErrorMessage:
+    ALREADY_FOLLOWED_ERROR = {'errors': 'Вы уже подписаны '
+                              + 'на этого пользователя'}
+    AUTHOR_FOLLOWED_ERROR = {'errors': 'Вы не сможете подписаться на себя'}
+    TIME_COOKING_ERROR = {'detail': 'Время приготовления дожно быть больше, '
+                          + f'либо равно {settings.MIN_TIME_COOKING} минуте'}
+    MIN_AMOUNT_ERROR = f'которое больше, либо равно {settings.MIN_AMOUNT}'
+
+
 class UserCreateSerializer(djoser.serializers.UserCreateSerializer):
     class Meta:
         model = User
@@ -71,7 +80,7 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
         )
 
 
-class UserSubSerializer(UserSerializer):
+class UserSubSerializer(UserSerializer, ErrorMessage):
     recipes_count = serializers.SerializerMethodField(
         method_name='get_recipes_count'
     )
@@ -105,12 +114,12 @@ class UserSubSerializer(UserSerializer):
         user = self.context.get('request').user
         if Subscriptions.objects.filter(author=author, user=user).exists():
             raise ValidationError(
-                {'errors': 'Вы уже подписаны на этого пользователя'},
+                self.ALREADY_FOLLOWED_ERROR,
                 status=status.HTTP_400_BAD_REQUEST
             )
         if user == author:
             raise ValidationError(
-                {'errors': 'Вы не сможете подписаться на себя'},
+                self.AUTHOR_FOLLOWED_ERROR,
                 status=status.HTTP_400_BAD_REQUEST
             )
         return data
@@ -134,7 +143,7 @@ class Base64ImageField(serializers.ImageField):
         return super().to_internal_value(data)
 
 
-class RecipeSerializer(serializers.ModelSerializer):
+class RecipeSerializer(serializers.ModelSerializer, ErrorMessage):
     image = Base64ImageField()
     author = UserSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
@@ -185,8 +194,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     def validate_cooking_time(self, data):
         if data < settings.MIN_TIME_COOKING:
             raise serializers.ValidationError(
-                {'detail': 'Время приготовления дожно быть больше, '
-                 + f'либо равно {settings.MIN_TIME_COOKING} минуте'})
+                self.TIME_COOKING_ERROR)
         return data
 
     def sum_amount_ingredients(self, lst):
@@ -218,7 +226,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             if int(ingredient['amount']) < settings.MIN_AMOUNT:
                 raise serializers.ValidationError(
                     {'amount': f'Укажите количество {ingredient}, '
-                     + f'которое больше, либо равно {settings.MIN_AMOUNT}'})
+                     + f'{self.MIN_AMOUNT_ERROR}'})
             if int(ingredient['id']) < 0:
                 raise serializers.ValidationError(
                     {'id': f'id элемента {ingredient}, '
