@@ -43,8 +43,8 @@ class Recipe(models.Model):
         validators=(
             MinValueValidator(
                 limit_value=settings.MIN_TIME_COOKING,
-                message='Укажите время приготовления, '
-                        + 'которое больше, либо равно 1'),),
+                message='Укажите время приготовления, которое больше, '
+                        + f'либо равно {settings.MIN_TIME_COOKING}'),),
         default=1)
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
@@ -143,7 +143,8 @@ class IngredientAmount(models.Model):
         validators=(
             MinValueValidator(
                 limit_value=settings.MIN_AMOUNT,
-                message='Укажите количество, которое больше, либо равно 1'),),
+                message='Укажите количество, которое больше, '
+                + f'либо равно {settings.MIN_AMOUNT}'),),
     )
 
     class Meta:
