@@ -20,7 +20,15 @@ from rest_framework.response import Response
 User = get_user_model()
 
 
-class UserViewSet(UserViewSet, viewsets.ModelViewSet):
+class ErrorMessage:
+    SUB_MSG_ERROR = {'errors': 'Вы не подписаны на данного пользователя'}
+    FAV_MSG_ERROR = {'error': 'Рецепт уже добавлен в избранное'}
+    FAV_NO_RECIPE_ERROR = {'errors': 'Рецепта нет в избранном'}
+    RECIPE_ALREADY_IN_ERROR = {'errors': 'Рецепта нет в избранном'}
+    SHOP_NO_RECIPE_ERROR = {'errors': 'Рецепта нет в списке покупок'}
+
+
+class UserViewSet(UserViewSet, viewsets.ModelViewSet, ErrorMessage):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -55,11 +63,12 @@ class UserViewSet(UserViewSet, viewsets.ModelViewSet):
                 serializer.errors,
                 status=status.HTTP_400_BAD_REQUEST)
         if request.method == 'DELETE':
-            if Subscriptions.objects.filter(author=author, user=user).exists():
-                Subscriptions.objects.get(author=author, user=user).delete()
+            sub = Subscriptions.objects.filter(author=author, user=user)
+            if sub.exists():
+                sub.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
             return Response(
-                {'errors': f'Вы не подписаны на пользователя c ID: {pk}'},
+                self.SUB_MSG_ERROR,
                 status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
@@ -81,7 +90,7 @@ class TagViewSet(viewsets.ModelViewSet):
     pagination_class = None
 
 
-class RecipeViewSet(viewsets.ModelViewSet):
+class RecipeViewSet(viewsets.ModelViewSet, ErrorMessage):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     permission_classes = (IsAuthorOrAdminOrReadOnly,)
@@ -96,10 +105,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         pk = kwargs.get('pk')
         recipe = get_object_or_404(Recipe, pk=pk)
         user = request.user
+        fav_filter = Favorites.objects.filter(user=user, recipe=recipe)
         if request.method == 'POST':
-            if Favorites.objects.filter(user=user, recipe=recipe).exists():
+            if fav_filter.exists():
                 return Response(
-                    {'error': 'Рецепт уже добавлен в избранное'},
+                    self.FAV_MSG_ERROR,
                     status=status.HTTP_400_BAD_REQUEST
                 )
             fav = Favorites(user=user, recipe=recipe)
@@ -107,11 +117,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
             serializer = ShortRecipeSerializer(recipe)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         if request.method == 'DELETE':
-            if Favorites.objects.filter(user=user, recipe=recipe).exists():
-                Favorites.objects.get(user=user, recipe=recipe).delete()
+            if fav_filter.exists():
+                fav_filter.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
             return Response(
-                {'errors': 'Рецепта нет в избранном'},
+                self.FAV_NO_RECIPE_ERROR,
                 status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
@@ -122,22 +132,23 @@ class RecipeViewSet(viewsets.ModelViewSet):
         pk = kwargs.get('pk')
         recipe = get_object_or_404(Recipe, pk=pk)
         user = request.user
+        shopcart_fliter = ShoppingCart.objects.filter(user=user, recipe=recipe)
         if request.method == 'POST':
-            if ShoppingCart.objects.filter(user=user, recipe=recipe).exists():
+            if shopcart_fliter.exists():
                 return Response(
-                    {'error': 'Рецепт уже добавлен в список покупок'},
+                    self.RECIPE_ALREADY_IN_ERROR,
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            fav = ShoppingCart(user=user, recipe=recipe)
-            fav.save()
+            shopcart = ShoppingCart(user=user, recipe=recipe)
+            shopcart.save()
             serializer = ShortRecipeSerializer(recipe)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         if request.method == 'DELETE':
-            if ShoppingCart.objects.filter(user=user, recipe=recipe).exists():
-                ShoppingCart.objects.get(user=user, recipe=recipe).delete()
+            if shopcart_fliter.exists():
+                shopcart_fliter.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
             return Response(
-                {'errors': 'Рецепта нет в списке покупок'},
+                self.SHOP_NO_RECIPE_ERROR,
                 status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
