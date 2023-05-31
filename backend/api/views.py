@@ -15,6 +15,7 @@ from recipes.models import (Favorites, Ingredient, Recipe, ShoppingCart,
                             Subscriptions, Tag)
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import DjangoModelPermissions
 from rest_framework.response import Response
 
 User = get_user_model()
@@ -31,6 +32,7 @@ class ErrorMessage:
 class UserViewSet(UserViewSet, viewsets.ModelViewSet, ErrorMessage):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = (DjangoModelPermissions,)
 
     @action(methods=('GET',),
             detail=False,
@@ -78,9 +80,10 @@ class UserViewSet(UserViewSet, viewsets.ModelViewSet, ErrorMessage):
     def subscriptions(self, request, *args, **kwargs):
         user = request.user
         subs = User.objects.filter(subscribing__user=user)
+        pages = self.paginate_queryset(subs)
         serializer = UserSubSerializer(
-            subs, context={'request': request}, many=True)
-        return Response(serializer.data)
+            pages, context={'request': request}, many=True)
+        return self.get_paginated_response(serializer.data)
 
 
 class TagViewSet(viewsets.ModelViewSet):
