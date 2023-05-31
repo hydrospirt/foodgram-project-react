@@ -20,9 +20,11 @@ class ErrorMessage:
     AUTHOR_FOLLOWED_ERROR = {'errors': 'Вы не сможете подписаться на себя'}
     TIME_COOKING_ERROR = {'detail': 'Время приготовления дожно быть больше, '
                           + f'либо равно {settings.MIN_TIME_COOKING} минуте'}
-    MIN_AMOUNT_ERROR = f'которое больше, либо равно {settings.MIN_AMOUNT}'
+    MIN_AMOUNT_ERROR = {'amount': 'Укажите количество, '
+                        f'которое больше, либо равно {settings.MIN_AMOUNT}'}
     ALREADY_INGREDIENT_ERROR = {'errors': 'Нельзя добавлять '
                                 + 'одинаковые ингредиенты'}
+    ID_MSG_ERROR = {'id': 'id элемента, не может быть отрицательным'}
 
 
 class UserCreateSerializer(djoser.serializers.UserCreateSerializer):
@@ -216,13 +218,10 @@ class RecipeSerializer(serializers.ModelSerializer, ErrorMessage):
 
         for ingredient in ingredients:
             if int(ingredient['amount']) < settings.MIN_AMOUNT:
-                raise serializers.ValidationError(
-                    {'amount': f'Укажите количество {ingredient}, '
-                     + f'{self.MIN_AMOUNT_ERROR}'})
+                raise serializers.ValidationError(self.MIN_AMOUNT_ERROR)
             if int(ingredient['id']) < 0:
                 raise serializers.ValidationError(
-                    {'id': f'id элемента {ingredient}, '
-                     + 'не может быть отрицательным'})
+                    self.ID_MSG_ERROR)
         ingredients_ids = [ingredient['id'] for ingredient in ingredients]
         if len(ingredients) != len(set(ingredients_ids)):
             raise serializers.ValidationError(
