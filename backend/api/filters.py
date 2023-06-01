@@ -1,8 +1,6 @@
-from django.contrib.auth import get_user_model
-from django_filters import FilterSet, ModelMultipleChoiceFilter, BooleanFilter
-from recipes.models import Recipe, Tag, ShoppingCart, Favorites
+from django_filters import ChoiceFilter, FilterSet, ModelMultipleChoiceFilter
+from recipes.models import Recipe, Tag
 
-User = get_user_model()
 
 class RecipeFilter(FilterSet):
     tags = ModelMultipleChoiceFilter(
@@ -10,9 +8,14 @@ class RecipeFilter(FilterSet):
         to_field_name='slug',
         queryset=Tag.objects.all()
     )
-    is_favorited = BooleanFilter(method='filter_is_favorited')
-    is_in_shopping_cart = BooleanFilter(
-        method='filter_is_in_shopping_cart')
+    STATUS_CHOICES = (
+        (0, 'false'),
+        (1, 'true'),)
+    is_favorited = ChoiceFilter(method='filter_is_favorited',
+                                choices=STATUS_CHOICES)
+    is_in_shopping_cart = ChoiceFilter(
+        method='filter_is_in_shopping_cart',
+        choices=STATUS_CHOICES)
 
     class Meta:
         model = Recipe
@@ -21,15 +24,15 @@ class RecipeFilter(FilterSet):
             'tags',
         )
 
-    def filter_is_favorited(self, queryset, value):
+    def filter_is_favorited(self, queryset, name, value):
         user = self.request.user
-        if int(value) and not user.is_anonymous:
-            return queryset.filter(favorites__user__exact=user)
-        return queryset.exclude(favorites__user__exact=user)
 
+        if value and not user.is_anonymous:
+            return queryset.filter(favorites__user=user)
+        return queryset
 
-    def filter_is_in_shopping_cart(self, queryset, value):
+    def filter_is_in_shopping_cart(self, queryset, name, value):
         user = self.request.user
-        if int(value) and not user.is_anonymous:
-            return queryset.filter(shopping_cart__user__exact=user)
-        return queryset.exclude(shopping_cart__user__exact=user)
+        if value and not user.is_anonymous:
+            return queryset.filter(shopping_cart__user=user)
+        return queryset

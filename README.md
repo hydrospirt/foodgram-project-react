@@ -41,6 +41,7 @@ sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-
 ```
 sudo chmod +x /usr/local/bin/docker-compose
 ```
+
 Запустить docker-compose:
 ```
 sudo docker-compose up -d
