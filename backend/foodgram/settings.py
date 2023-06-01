@@ -11,8 +11,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import os
-from dotenv import load_dotenv
 from pathlib import Path
+
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -164,13 +165,13 @@ DJOSER = {
     'PERMISSIONS': {
         'user_list': ['rest_framework.permissions.AllowAny'],
     },
-     'SERIALIZERS': {
-         'user_create': 'api.serializers.UserCreateSerializer',
-         'user': 'api.serializers.UserSerializer',
-         'user_list': 'api.serializers.UserSerializer',
-         'current_user': 'api.serializers.UserSerializer',
-     },
-     'HIDE_USERS': False
+    'SERIALIZERS': {
+        'user_create': 'api.serializers.UserCreateSerializer',
+        'user': 'api.serializers.UserSerializer',
+        'user_list': 'api.serializers.UserSerializer',
+        'current_user': 'api.serializers.UserSerializer',
+    },
+    'HIDE_USERS': False
 }
 
 # Константы приложения Recipes для валидации
