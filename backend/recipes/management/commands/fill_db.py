@@ -10,7 +10,7 @@ from django.core.management.base import BaseCommand, CommandParser
 from progress.bar import Bar
 from recipes.models import Ingredient
 
-PROJECT_DIR = Path(__file__).resolve().parents[4]
+PROJECT_DIR = Path(__file__).resolve().parents[3]
 DATA_DIR = os.path.join(PROJECT_DIR, 'data')
 
 
