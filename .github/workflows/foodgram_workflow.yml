@@ -57,7 +57,7 @@ deploy:
           script: |
             sudo docker-compose pull ${{ secrets.DOCKER_USERNAME }}/backend:latest
             sudo docker-compose stop $(sudo docker ps -a -q)
-            sudo docker-compose rm web
+            sudo docker-compose rm backend
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} > .env
             echo DB_NAME=${{ secrets.DB_NAME }} >> .env
             echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
