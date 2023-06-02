@@ -1,3 +1,4 @@
+![Foodgram workflow](https://github.com/hydrospirt/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
 # Foodgram - Продуктовый помощник
 
 Сервис создан для размещения рецептов различных блюд.
