@@ -32,7 +32,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
-CSRF_TRUSTED_ORIGINS = ['http://158.160.17.6/']
+CSRF_TRUSTED_ORIGINS = ['http://158.160.17.6']
 
 
 # Application definition
