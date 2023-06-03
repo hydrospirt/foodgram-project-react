@@ -42,12 +42,56 @@ sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-
 ```
 sudo chmod +x /usr/local/bin/docker-compose
 ```
-
+Добавить в nginx ваш ip сервера:
+```
+server {
+    listen 80;
+    server_name ip адрес;
+    server_tokens off;
+    ...
+```
+Скопирвать папки 'docs/', 'fontend/' и файлы docker-compose.yml, nginx.conf (на вашем локальном компьютере) на ваш сервер:
+```
+scp -r docs/* <server user>@<server IP>:/home/<server user>/
+```
+Создать .env
+```
+touch .env
+```
+Заполнить .env данными:
+```
+echo SECRET_KEY=Ваш секретный ключ Django >> .env
+echo DB_ENGINE=django.db.backends.postgresql >> .env
+echo DB_NAME=имя вашей БД >> .env
+echo POSTGRES_USER=имя пользователя БД >> .env
+echo POSTGRES_PASSWORD=пароль от вашей БД >> .env
+echo DB_HOST=хост >> .env
+echo DB_PORT=порт по умолчанию 5432 >> .env
+```
+Изменить настройки в settings.py:
+```
+CSRF_TRUSTED_ORIGINS = [http://ip или сайт]
+```
 Запустить docker-compose:
 ```
 sudo docker-compose up -d
 ```
-
+Применить миграции:
+```
+sudo docker-compose exec backend python manage.py migrate
+```
+Собрать статику:
+```
+sudo docker-compose exec backend python manage.py collectstatic --no-input
+```
+Создать супер пользователя:
+```
+sudo docker-compose exec backend python manage.py createsuperuser
+```
+Заполнить базу данных ингредиентами:
+```
+sudo docker-compose exec backend python manage.py fill_db ingredients.csv
+```
 
 # Автор
 Эдуард Гумен - GitHub: https://github.com/hydrospirt
