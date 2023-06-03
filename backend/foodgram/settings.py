@@ -176,3 +176,4 @@ MIN_TIME_COOKING = 1
 MIN_AMOUNT = 1
 # Имя карточки покупок
 FILE_NAME = 'foodgram_shopping_cart.txt'
+SECURE_CROSS_ORIGIN_OPENER_POLICY=None
