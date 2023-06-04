@@ -31,10 +31,12 @@ class UserCreateSerializer(djoser.serializers.UserCreateSerializer):
     class Meta:
         model = User
         fields = (
-            'first_name',
-            'last_name',
+            'email',
+            'id',
             'username',
             'email',
+            'first_name',
+            'last_name',
             'password',
         )
 
@@ -61,16 +63,16 @@ class UserSerializer(serializers.ModelSerializer):
         return Subscriptions.objects.filter(author=user_id,
                                             user=request_user).exists()
 
-    def create(self, validated_data):
-        user = User(
-            email=validated_data['email'],
-            username=validated_data['username'],
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name'],
-        )
-        user.set_password(validated_data['password'])
-        user.save()
-        return user
+    # def create(self, validated_data):
+    #     user = User(
+    #         email=validated_data['email'],
+    #         username=validated_data['username'],
+    #         first_name=validated_data['first_name'],
+    #         last_name=validated_data['last_name'],
+    #     )
+    #     user.set_password(validated_data['password'])
+    #     user.save()
+    #     return user
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
