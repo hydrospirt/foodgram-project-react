@@ -17,7 +17,6 @@ class AdminRecipe(admin.ModelAdmin):
         'name',
         'author',
         'short_text',
-        'tags',
         'amount_favorites',
         'pub_date',
     )
@@ -67,7 +66,7 @@ class AdminFavorites(admin.ModelAdmin):
         'user',
         'recipe',
     )
-    list_filter = ('recipe__tags')
+    list_filter = ('recipe__tags',)
     search_fields = (
         'user__username',
         'user__email',
