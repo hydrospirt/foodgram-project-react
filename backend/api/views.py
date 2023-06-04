@@ -4,7 +4,8 @@ from api.permissions import IsAdminOrReadOnly, IsAuthorOrAdminOrReadOnly
 from api.renders import IngredientDataRendererTXT
 from api.serializers import (IngredientAmountSerializer, IngredientSerializer,
                              RecipeSerializer, ShortRecipeSerializer,
-                             TagSerializer, UserSerializer, UserSubSerializer)
+                             TagSerializer, UserCreateSerializer,
+                             UserSerializer, UserSubSerializer)
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
@@ -31,8 +32,12 @@ class ErrorMessage:
 
 class UserViewSet(UserViewSet, viewsets.ModelViewSet, ErrorMessage):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
     permission_classes = (DjangoModelPermissions,)
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return UserCreateSerializer
+        return UserSerializer
 
     @action(methods=('GET',),
             detail=False,
