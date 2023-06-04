@@ -14,9 +14,10 @@ class AdminUser(UserAdmin):
         'is_active',
         'last_login',
         'is_staff',
+        'is_superuser'
         'date_joined',
     )
-    list_filter = ('email', 'first_name')
+    list_filter = ('is_superuser', 'is_staff', 'is_active')
     search_fields = ('email', 'first_name')
     list_display_links = ('pk', 'username')
     readonly_fields = ('date_joined',)
