@@ -17,11 +17,12 @@ class AdminRecipe(admin.ModelAdmin):
         'name',
         'author',
         'short_text',
+        'tags',
         'amount_favorites',
         'pub_date',
     )
-    list_filter = ('author', 'name', 'tags')
-    search_fields = ('author', 'name', 'tags')
+    list_filter = ('tags',)
+    search_fields = ('author', 'author__email', 'name')
     readonly_fields = ('amount_favorites',)
     inlines = (IngredientAmountInline,)
     date_hierarchy = 'pub_date'
@@ -42,7 +43,7 @@ class AdminIngredient(admin.ModelAdmin):
         'name',
         'measurement_unit',
     )
-    list_filter = ('name',)
+    list_filter = ('measurement_unit',)
     search_fields = ('name',)
     empty_value_display = '-пусто-'
 
@@ -66,7 +67,12 @@ class AdminFavorites(admin.ModelAdmin):
         'user',
         'recipe',
     )
-    list_filter = ('user', 'recipe')
+    list_filter = ('recipe__tags')
+    search_fields = (
+        'user__username',
+        'user__email',
+        'recipe__name',
+    )
     empty_value_display = '-пусто-'
 
 
@@ -77,7 +83,12 @@ class AdminSubscriptions(admin.ModelAdmin):
         'user',
         'author',
     )
-    list_filter = ('user', 'author')
+    search_fields = (
+        'user__username',
+        'user__email',
+        'author__username',
+        'author__email',
+    )
     empty_value_display = '-пусто-'
 
 
@@ -88,5 +99,10 @@ class AdminShoppingCart(admin.ModelAdmin):
         'user',
         'recipe',
     )
-    list_filter = ('user', 'recipe')
+    list_filter = ('recipe__tags',)
+    search_fields = (
+        'user__username',
+        'user__email',
+        'recipe__name',
+    )
     empty_value_display = '-пусто-'
