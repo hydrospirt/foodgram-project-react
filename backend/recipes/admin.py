@@ -21,7 +21,7 @@ class AdminRecipe(admin.ModelAdmin):
         'pub_date',
     )
     list_filter = ('tags',)
-    search_fields = ('author', 'author__email', 'name')
+    search_fields = ('author__username', 'author__email', 'name')
     readonly_fields = ('amount_favorites',)
     inlines = (IngredientAmountInline,)
     date_hierarchy = 'pub_date'
