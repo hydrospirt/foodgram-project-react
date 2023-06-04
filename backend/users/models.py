@@ -33,7 +33,8 @@ class CustomUser(AbstractUser):
         help_text='Введите пароль'
     )
     is_active = models.BooleanField(
-        default=True
+        verbose_name='Активирован',
+        default=True,
     )
     is_staff = models.BooleanField(
         verbose_name='Персонал',
