@@ -14,7 +14,7 @@ class AdminUser(UserAdmin):
         'is_active',
         'last_login',
         'is_staff',
-        'is_superuser'
+        'is_superuser',
         'date_joined',
     )
     list_filter = ('is_superuser', 'is_staff', 'is_active')
