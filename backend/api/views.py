@@ -1,4 +1,4 @@
-from api.filters import IngredientFilter, RecipeFilter
+from api.filters import RecipeFilter
 from api.paginators import LimitPageNumberPagination
 from api.permissions import IsAdminOrReadOnly, IsAuthorOrAdminOrReadOnly
 from api.renders import IngredientDataRendererTXT
@@ -186,6 +186,14 @@ class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (IsAdminOrReadOnly,)
-    filter_backends = (DjangoFilterBackend,)
-    filterset_class = IngredientFilter
     pagination_class = None
+
+    def get_queryset(self):
+        queryset = self.queryset
+        name = self.request.GET.get('search', '')
+        if name:
+            name = name.lower()
+            icontains_query = queryset.filter(name__icontains=name)
+            queryset = icontains_query
+            return queryset
+        return queryset
