@@ -189,13 +189,3 @@ class IngredientViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = IngredientFilter
     pagination_class = None
-
-    def get_queryset(self):
-        queryset = self.queryset
-        name = self.request.GET.get('search', '')
-        if name:
-            name = name.lower()
-            icontains_query = queryset.filter(name__icontains=name)
-            queryset = icontains_query
-            return queryset
-        return super().get_queryset()
