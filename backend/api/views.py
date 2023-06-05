@@ -106,6 +106,9 @@ class RecipeViewSet(viewsets.ModelViewSet, ErrorMessage):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
 
+    def perform_create(self, serializer):
+        return serializer.save(author=self.request.user)
+
     @action(methods=('POST', 'DELETE'),
             detail=True,
             permission_classes=(permissions.IsAuthenticated,))
