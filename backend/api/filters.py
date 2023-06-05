@@ -1,5 +1,14 @@
-from django_filters import ChoiceFilter, FilterSet, ModelMultipleChoiceFilter
-from recipes.models import Recipe, Tag
+from django_filters import (CharFilter, ChoiceFilter, FilterSet,
+                            ModelMultipleChoiceFilter)
+from recipes.models import Ingredient, Recipe, Tag
+
+
+class IngredientFilter(FilterSet):
+    name = CharFilter(lookup_expr='startswith')
+
+    class Meta:
+        model = Ingredient
+        fields = ('name', )
 
 
 class RecipeFilter(FilterSet):
