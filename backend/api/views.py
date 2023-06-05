@@ -1,3 +1,5 @@
+from urllib.parse import unquote
+
 from api.filters import RecipeFilter
 from api.paginators import LimitPageNumberPagination
 from api.permissions import IsAdminOrReadOnly, IsAuthorOrAdminOrReadOnly
@@ -192,6 +194,8 @@ class IngredientViewSet(viewsets.ModelViewSet):
         queryset = self.queryset
         name = self.request.GET.get('search', '')
         if name:
+            if name[0] == '%':
+                name = unquote(name)
             name = name.lower()
             icontains_query = queryset.filter(name__icontains=name)
             queryset = icontains_query
