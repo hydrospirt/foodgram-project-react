@@ -192,7 +192,7 @@ class IngredientViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = self.queryset
-        name = self.request.GET.get('search', '')
+        name = self.request.GET.get('name', '')
         if name:
             if name[0] == '%':
                 name = unquote(name)
